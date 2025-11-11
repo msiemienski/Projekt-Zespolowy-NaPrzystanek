@@ -37,7 +37,7 @@ export default function Main() {
                         </div>
                     </button>
                     {open && (
-                        <ul className="absolute top-full mt-1 ml-10 w-40 bg-white border rounded shadow-lg">
+                        <ul className="absolute z-10 top-full mt-1 ml-10 w-40 bg-white border rounded shadow-lg">
                         {["Gdańsk", "Sopot", "Gdynia"].map((opt) => (
                             <li
                             key={opt}
