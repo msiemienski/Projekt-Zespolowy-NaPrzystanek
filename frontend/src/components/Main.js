@@ -1,5 +1,5 @@
 'use client';
-import { Settings, User, BusFront, Building2, ChevronsUpDown } from 'lucide-react';
+import { Settings, User, BusFront, Building2, ChevronsUpDown, Search, LocateIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Main() {
@@ -11,21 +11,21 @@ export default function Main() {
     };
     return (
         <div className="bg-white w-auto h-auto min-w-196 min-h-196 max-w-2xl max-h-[800px] m-6 rounded-lg shadow-lg">
-            <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100">
-            <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
-                <User className="w-10 h-10 text-blue-600"/>
-            </button>
-            <div className="flex flex-row items-center justify-between gap-2">
-                <h1 className="font-bold text-2xl select-none" style={{ fontFamily: 'var(--font-poppins)' }}>Na Przystanek</h1>
-                <BusFront></BusFront>
-            </div>
-            
-            <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
-                <Settings className="w-10 h-10 text-blue-600"/>
-            </button>
+            <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100 bg-sky-500/3">
+                <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
+                    <User className="w-10 h-10 text-blue-600"/>
+                </button>
+                <div className="flex flex-row items-center justify-between gap-2">
+                    <h1 className="font-bold text-2xl select-none" style={{ fontFamily: 'var(--font-poppins)' }}>Na Przystanek</h1>
+                    <BusFront></BusFront>
+                </div>
+                
+                <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
+                    <Settings className="w-10 h-10 text-blue-600"/>
+                </button>
 
             </div>
-            <div className="flex flex-row justify-start items-center h-1/12 gap-20 pl-5 text-blue-600">
+            <div className="flex flex-row justify-start items-center h-1/12 gap-20 pl-5 text-blue-600 bg-blue-500/4">
                 <div className="flex flex-row items-center justify-center gap-2 relative">
                     <button value={selected} onChange={handleSelectChange} onClick={() => setOpen(!open)} className="cursor-pointer hover:opacity-70 transition">
                         <div className="flex flex-row items-center justify-center gap-2">
@@ -53,6 +53,33 @@ export default function Main() {
                 
                 
             </div>
+            <div className="flex flex-row justify-start items-center h-1/12 gap-2 pl-5 text-blue-600 bg-blue-500/4">
+                <div className="flex flex-row items-center justify-center gap-2 w-full">
+                <div className="relative w-4/5">
+                    <input
+                        type="text"
+                        placeholder="Skąd chcesz jechać?"
+                        className="w-full h-10 font-bold text-xl border rounded-xl p-5 pr-12" 
+                    />
+                    
+                    <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-blue-500/20 rounded-full">
+                        <LocateIcon className="w-6 h-6 text-blue-600 cursor-pointer"/>
+                    </button>
+                </div>
+                    <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
+                        <Search className="w-10 h-10 text-blue-600"/>
+                    </button>
+                </div>
+            </div>
+            <div className="flex flex-row justify-start items-center h-1/12 gap-2 pl-5 text-blue-600 bg-blue-500/4">
+                <div className="flex flex-row items-center justify-center gap-2 w-full">
+                    <input type="text" placeholder="Dokąd chcesz jechać?" className="w-8/10 h-10 font-bold text-xl border rounded-xl p-5"/>
+                    <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
+                        <Search className="w-10 h-10 text-blue-600"/>
+                    </button>
+                </div>
+            </div>
         </div>
+
     );
 }
