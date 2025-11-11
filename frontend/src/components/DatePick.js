@@ -35,7 +35,6 @@ export default function DatePick() {
                 locale={pl}
                 showTimeInput
                 className="w-full px-4 py-3 text-base font-semibold text-blue-600 bg-white border-2 border-gray-200 rounded-xl transition-all duration-300 cursor-pointer hover:border-gray-300 hover:shadow-md focus:outline-none focus:ring-blue-400 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-20"
-                
             />
         </div>
     )
