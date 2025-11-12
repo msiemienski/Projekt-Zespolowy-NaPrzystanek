@@ -2,17 +2,18 @@
 import { Settings, User, BusFront, Building2, ChevronsUpDown, Search, LocateIcon } from 'lucide-react';
 import { useState } from 'react';
 import DatePick from './DatePick';
-
+import SettingsComp from './SettingsComp';
 export default function Main() {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState("Gdańsk");
     const [focusedInput, setFocusedInput] = useState(null);
+    const [showSettings, setShowSettings] = useState(false);
     const handleSelectChange = (option) => {
         setSelected(option);
         setOpen(false);
     };
     return (
-        <div className="bg-white w-auto h-auto min-w-196 min-h-196 max-w-2xl max-h-[800px] m-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-102">
+        <div className="bg-white w-auto h-auto min-w-196 min-h-196 max-w-2xl max-h-[800px] m-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-102 relative">
             <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100 bg-sky-500/3">
                 <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
                     <User className="w-10 h-10 text-blue-600"/>
@@ -22,10 +23,10 @@ export default function Main() {
                     <BusFront></BusFront>
                 </div>
                 
-                <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
+                <button onClick={() => setShowSettings(!showSettings)} className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
                     <Settings className="w-10 h-10 text-blue-600"/>
                 </button>
-
+                <SettingsComp onClose={() => setShowSettings(false)} showSettings={showSettings}></SettingsComp>
             </div>
             <div className="flex flex-row justify-start items-center h-1/12 gap-20 pl-5 text-blue-600 bg-blue-500/4">
                 <div className="flex flex-row items-center justify-center gap-2 relative">
