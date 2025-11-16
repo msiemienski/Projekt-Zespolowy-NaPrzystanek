@@ -43,7 +43,12 @@ const LoginComp = ({ onClose, showLogin }) => {
                     
                 </div>
                 <div className="flex flex-col items-center justify-center text-black">
-                    <div className="flex flex-col items-center justify-center w-2/3 h-2/3 p-4 gap-4">
+                    <div className="flex flex-col items-center justify-center w-full h-full gap-4 text-center">
+                        <div className="w-2/3 h-10">Tu Przycisk do Logowania przez Google</div>
+                        <div className="w-2/3 h-10">Tu Przycisk do Logowania przez Facebook ewentualnie</div>
+                    </div>
+                    
+                    <div className="flex flex-col items-center justify-center w-2/3 h-2/3 p-10 gap-4">
                         <input type="text" placeholder="Email" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
                         <input type="password" placeholder="Hasło" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
                         <div className="flex flex-row items-center justify-center">
@@ -52,7 +57,7 @@ const LoginComp = ({ onClose, showLogin }) => {
                     </div>
                     
                     
-                    <button className="text-xl font-bold/90 w-40 h-10 bg-sky-400 text-white rounded-xl hover:bg-sky-600 transition-all duration-300">Zaloguj się</button>
+                    <button className="text-xl font-bold/90 w-2/3 h-10 bg-sky-400 text-white rounded-xl hover:bg-sky-600 transition-all duration-300 cursor-pointer">Zaloguj się</button>
                 </div>
 
             </div>
