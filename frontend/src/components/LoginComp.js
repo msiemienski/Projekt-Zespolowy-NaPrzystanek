@@ -1,16 +1,18 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { useState } from "react";
+import RegisterComp from "./RegisterComp";
 const LoginComp = ({ onClose, showLogin }) => {
   const handleLoginCloseClick = (e) => {
     e.preventDefault();
     onClose();
   };
-
+  const [showRegister, setShowRegister] = useState(false);
   return (
     <AnimatePresence>
       {showLogin && (
         <motion.div
-          className="absolute top-0 left-0 inset-0 bg-black/50 flex items-center justify-center z-50 h-full w-full text-blue-600"
+          className="absolute top-0 left-0 inset-0 bg-black/50 rounded-lg flex items-center justify-center z-50 h-full w-full text-blue-600"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -18,19 +20,19 @@ const LoginComp = ({ onClose, showLogin }) => {
           onClick={onClose}
         >
           <motion.div
-            className="max-w-[90vw] max-h-[90vh] overflow-auto"
+            className="max-w-[90vw] max-h-[90vh]"
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1.05, opacity: 1, y: 3 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.175, 0.885, 0.32, 1.275] }}
             onClick={(e) => e.stopPropagation()} 
           >
-            <div className="min-w-[600px] max-w-[800px] min-h-160 max-h-160 bg-white rounded-lg p-4 shadow-2xl">
+            <div className="min-w-[600px] max-w-[800px] min-h-150 max-h-500 bg-white rounded-lg p-4 shadow-2xl">
                 
                 <div className="flex justify-between mb-4 items-center">
                     <div className="w-6 h-6"></div>
                     <div className="flex flex-row justify-center items-center">
-                        <h1 className="text-2xl font-bold text-black">Logowanie</h1>
+                        <h1 className="text-2xl font-bold text-black p-3 m-3">Logowanie</h1>
                     </div>
                     
                     <a
@@ -52,8 +54,9 @@ const LoginComp = ({ onClose, showLogin }) => {
                         <input type="text" placeholder="Email" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
                         <input type="password" placeholder="Hasło" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
                         <div className="flex flex-row items-center justify-center">
-                            Nie masz konta? <a href="/" className="text-black hover:text-blue-800 transition-colors cursor-pointer underline p-1 gap-1">Zarejestruj się</a>    
+                            Nie masz konta? <button onClick={() => setShowRegister(true)} className="text-black hover:text-blue-800 transition-colors cursor-pointer underline p-1 gap-1">Zarejestruj się</button>    
                         </div>
+                        <RegisterComp onClose={() => setShowRegister(false)} showRegister={showRegister}></RegisterComp>
                     </div>
                     
                     
