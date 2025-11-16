@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-const SettingsComp = ({ onClose, children, title, showSettings }) => {
+const SettingsComp = ({ onClose, showSettings }) => {
   const handleCloseClick = (e) => {
     e.preventDefault();
     onClose();
@@ -28,7 +28,7 @@ const SettingsComp = ({ onClose, children, title, showSettings }) => {
             <div className="min-w-[600px] max-w-[800px] min-h-160 max-h-160 bg-white rounded-lg p-4 shadow-2xl">
               <div className="flex justify-end mb-4">
                 <a
-                  href="#"
+                  href="/"
                   onClick={handleCloseClick}
                   className="text-2xl font-bold text-gray-600 hover:text-black transition-colors cursor-pointer no-underline"
                 >

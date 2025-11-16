@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-const LoginComp = ({ onClose, children, title, showLogin }) => {
+const LoginComp = ({ onClose, showLogin }) => {
   const handleLoginCloseClick = (e) => {
     e.preventDefault();
     onClose();
@@ -26,15 +26,34 @@ const LoginComp = ({ onClose, children, title, showLogin }) => {
             onClick={(e) => e.stopPropagation()} 
           >
             <div className="min-w-[600px] max-w-[800px] min-h-160 max-h-160 bg-white rounded-lg p-4 shadow-2xl">
-              <div className="flex justify-end mb-4">
-                <a
-                  href="#"
-                  onClick={handleLoginCloseClick}
-                  className="text-2xl font-bold text-gray-600 hover:text-black transition-colors cursor-pointer no-underline"
-                >
-                  <X className="w-6 h-6 text-blue-600"/>
-                </a>
-              </div>
+                
+                <div className="flex justify-between mb-4 items-center">
+                    <div className="w-6 h-6"></div>
+                    <div className="flex flex-row justify-center items-center">
+                        <h1 className="text-2xl font-bold text-black">Logowanie</h1>
+                    </div>
+                    
+                    <a
+                    href="/"
+                    onClick={handleLoginCloseClick}
+                    className="text-2xl font-bold text-gray-600 hover:text-black transition-colors cursor-pointer no-underline"
+                    >
+                    <X className="w-6 h-6 text-blue-600"/>
+                    </a>
+                    
+                </div>
+                <div className="flex flex-col items-center justify-center text-black">
+                    <div className="flex flex-col items-center justify-center w-2/3 h-2/3 p-4 gap-4">
+                        <input type="text" placeholder="Email" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                        <input type="password" placeholder="Hasło" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                        <div className="flex flex-row items-center justify-center">
+                            Nie masz konta? <a href="/" className="text-black hover:text-blue-800 transition-colors cursor-pointer underline p-1 gap-1">Zarejestruj się</a>    
+                        </div>
+                    </div>
+                    
+                    
+                    <button className="text-xl font-bold/90 w-40 h-10 bg-sky-400 text-white rounded-xl hover:bg-sky-600 transition-all duration-300">Zaloguj się</button>
+                </div>
 
             </div>
           </motion.div>
