@@ -3,11 +3,13 @@ import { Settings, User, BusFront, Building2, ChevronsUpDown, Search, LocateIcon
 import { useState } from 'react';
 import DatePick from './DatePick';
 import SettingsComp from './SettingsComp';
+import LoginComp from './LoginComp';
 export default function Main() {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState("Gdańsk");
     const [focusedInput, setFocusedInput] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
     const handleSelectChange = (option) => {
         setSelected(option);
         setOpen(false);
@@ -15,9 +17,10 @@ export default function Main() {
     return (
         <div className="bg-white w-auto h-auto min-w-196 min-h-196 max-w-2xl max-h-[800px] m-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-102 relative">
             <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100 bg-sky-500/3">
-                <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
+                <button onClick={() => setShowLogin(!showLogin)} className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
                     <User className="w-10 h-10 text-blue-600"/>
                 </button>
+                <LoginComp onClose={() => setShowLogin(false)} showLogin={showLogin}></LoginComp>
                 <div className="flex flex-row items-center justify-between gap-2">
                     <h1 className="font-bold text-2xl select-none" style={{ fontFamily: 'var(--font-poppins)' }}>Na Przystanek</h1>
                     <BusFront></BusFront>
