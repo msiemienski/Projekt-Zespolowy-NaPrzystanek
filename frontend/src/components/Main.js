@@ -1,5 +1,6 @@
 'use client';
-import { Settings, User, BusFront, Building2, ChevronsUpDown, Search, LocateIcon } from 'lucide-react';
+import { Settings, User, BusFront, Building2, ChevronsUpDown, LocateIcon } from 'lucide-react';
+import { motion } from "framer-motion";
 import { useState } from 'react';
 import DatePick from './DatePick';
 import SettingsComp from './SettingsComp';
@@ -80,9 +81,6 @@ export default function Main() {
                         <LocateIcon className="w-6 h-6 text-blue-600 cursor-pointer"/>
                     </button>
                 </div>
-                    <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
-                        <Search className="w-10 h-10 text-blue-600"/>
-                    </button>
                 </div>
             </div>
             <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
@@ -100,15 +98,19 @@ export default function Main() {
                         focus:outline-none focus:ring-2 focus:ring-blue-400
                         `}
                     />
-                    <button className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer">
-                        <Search className="w-10 h-10 text-blue-600"/>
-                    </button>
                 </div>
             </div>
             <div className="flex flex-row justify-between items-center h-1/10 p-10 text-blue-600 bg-blue-500/4">
                 <DatePick></DatePick>
                 
             </div>
+            <div className="flex flex-row justify-center items-center h-1/10 p-10 bg-blue-500/4">
+                <motion.button whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300 }} className="text-lg sm:text-xl font-bold/90 w-full sm:w-1/3 h-10 bg-red-400/90 text-white rounded-xl hover:bg-red-400 cursor-pointer mt-4 shadow-lg">Wyszukaj trasy
+                </motion.button>
+            </div>
+            
         </div>
 
     );
