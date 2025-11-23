@@ -126,46 +126,46 @@ export default function Main() {
           )}
         </div>
       </div>
-      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
-            <div className="flex flex-row items-center justify-center gap-2 w-full">
-            <div className="relative w-4/5">
-                <input
-                    type="text"
-                    placeholder="Skąd chcesz jechać?"
-                    onFocus={() => setFocusedInput(1)}
-                    onBlur={() => setFocusedInput(null)}
-                    className={`w-full h-10 font-bold text-xl border rounded-xl p-5 pr-12
-                    transition-all duration-300 ease-in-out
-                    h-10 px-3 text-base
-                    ${focusedInput === 1 ? "h-12 text-lg" : ""}
-                    border border-gray-300 rounded
-                    focus:outline-none focus:ring-2 focus:ring-blue-400
-                    `}
-                />
-                
-                <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-blue-500/20 rounded-full">
-                    <LocateIcon className="w-6 h-6 text-blue-600 cursor-pointer"/>
-                </button>
-            </div>
-            </div>
+      <div className="flex flex-row justify-start items-center gap-2 pl-4 py-2 text-blue-600 bg-blue-500/4 shrink-0">
+        <div className="flex flex-row items-center justify-center gap-2 w-full">
+          <div className="relative w-4/5">
+            <input
+              type="text"
+              placeholder="Skąd chcesz jechać?"
+              onFocus={() => setFocusedInput(1)}
+              onBlur={() => setFocusedInput(null)}
+              className={`w-full h-10 font-bold text-xl border rounded-xl p-5 pr-12
+                        transition-all duration-300 ease-in-out
+                        h-10 px-3 text-base
+                        ${focusedInput === 1 ? "h-12 text-lg" : ""}
+                        border border-gray-300 rounded
+                        focus:outline-none focus:ring-2 focus:ring-blue-400
+                        `}
+            />
+
+            <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-blue-500/20 rounded-full">
+              <LocateIcon className="w-6 h-6 text-blue-600 cursor-pointer" />
+            </button>
+          </div>
         </div>
-      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
-            <div className="flex flex-row items-center justify-center gap-2 w-full">
-                <input
-                    type="text"
-                    placeholder="Dokąd chcesz jechać?"
-                    onFocus={() => setFocusedInput(2)}
-                    onBlur={() => setFocusedInput(null)}
-                    className={`w-4/5 h-10 font-bold text-xl border rounded-xl p-5 pr-12
-                    transition-all duration-300 ease-in-out
-                    h-10 px-3 text-base
-                    ${focusedInput === 2 ? "h-12 text-lg" : ""}
-                    border border-gray-300 rounded
-                    focus:outline-none focus:ring-2 focus:ring-blue-400
-                    `}
-                />
-            </div>
+      </div>
+      <div className="flex flex-row justify-center items-center gap-2 pl-4 py-2 text-blue-600 bg-blue-500/4 shrink-0">
+        <div className="flex flex-row items-center justify-center gap-2 w-4/5">
+          <input
+            type="text"
+            placeholder="Dokąd chcesz jechać?"
+            onFocus={() => setFocusedInput(2)}
+            onBlur={() => setFocusedInput(null)}
+            className={`w-full h-10 font-bold text-xl border rounded-xl p-5 pr-12
+                        transition-all duration-300 ease-in-out
+                        h-10 px-3 text-base
+                        ${focusedInput === 2 ? "h-12 text-lg" : ""}
+                        border border-gray-300 rounded
+                        focus:outline-none focus:ring-2 focus:ring-blue-400
+                        `}
+          />
         </div>
+      </div>
       <div className="flex flex-row justify-between items-center p-4 text-blue-600 bg-blue-500/4 shrink-0">
         <DatePick></DatePick>
       </div>
