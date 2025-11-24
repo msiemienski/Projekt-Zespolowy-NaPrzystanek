@@ -25,7 +25,7 @@ export default function RegisterComp({ onClose, showRegister }) {
                     transition={{ duration: 0.3, ease: [0.175, 0.885, 0.32, 1.275] }}
                     onClick={(e) => e.stopPropagation()} 
                 >
-                <div className="w-3/4 h-3/4 max-w-[600px] sm:max-w-[700px] md:max-w-[800px] min-h-[400px] max-h-[90vh] bg-white rounded-lg p-4 sm:p-6 shadow-2xl overflow-auto">
+                <div className="w-9/10 h-3/4 max-w-[600px] sm:max-w-[700px] md:max-w-[800px] min-h-[400px] max-h-[90vh] bg-white rounded-lg p-4 sm:p-6 shadow-2xl overflow-auto">
                     
                         <div className="flex justify-between mb-4 items-center">
                             <div className="w-6 h-6"></div>
