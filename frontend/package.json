@@ -2,11 +2,11 @@
   "name": "naprzystanek",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
+    "scripts": {
+      "dev": "next dev --webpack",
+      "build": "next build --webpack",
+      "start": "next start --webpack"
+    },
   "dependencies": {
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
