@@ -8,6 +8,14 @@ import {
   LocateIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import DatePick from "./DatePick";
+import SettingsComp from "./SettingsComp";
+import LoginComp from "./LoginComp";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
 import { useState } from "react";
 import DatePick from "./DatePick";
 import SettingsComp from "./SettingsComp";
@@ -19,6 +27,10 @@ export default function Main() {
   const [focusedInput, setFocusedInput] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+
+  // stan zalogowanego użytkownika
+  const [currentUser, setCurrentUser] = useState(null);
+
   const [showRoutes, setShowRoutes] = useState(false);
   const [routes, setRoutes] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +39,77 @@ export default function Main() {
     setSelected(option);
     setOpen(false);
   };
+
+  // przy starcie komponentu sprawdzamy, czy mamy zalogowanego użytkownika
+  useEffect(() => {
+    async function fetchMe() {
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data);
+        } else {
+          setCurrentUser(null);
+        }
+      } catch (e) {
+        setCurrentUser(null);
+      }
+    }
+
+    fetchMe();
+  }, []);
+
+  // wylogowanie
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (e) {
+      // błąd można zignorować, ważne, że czyścimy stan po stronie frontu
+    }
+    setCurrentUser(null);
+  };
+
+  return (
+    <div className="bg-white w-auto h-auto min-w-196 min-h-196 max-w-2xl max-h-[800px] m-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-102 relative">
+      <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100 bg-sky-500/3">
+        {/* lewa część: logowanie / wylogowanie */}
+        {!currentUser && (
+          <>
+            <button
+              onClick={() => setShowLogin(!showLogin)}
+              className="p-0 w-fit h-fit hover:opacity-70 transition cursor-pointer"
+            >
+              <User className="w-10 h-10 text-blue-600" />
+            </button>
+            <LoginComp
+              onClose={() => setShowLogin(false)}
+              showLogin={showLogin}
+            />
+          </>
+        )}
+
+        {currentUser && (
+          <div className="flex flex-row items-center gap-3">
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 rounded-xl border border-blue-600 text-blue-600 text-sm hover:bg-blue-50 transition"
+            >
+              Wyloguj
+            </button>
+            <span className="text-sm font-medium text-blue-800">
+              {currentUser.name || currentUser.email}
+            </span>
+          </div>
+        )}
+
+        {/* środek: tytuł i ikona autobusu */}
   const handleSearchRoutes = async () => {
     setShowRoutes(true);
     setIsLoading(true);
@@ -83,6 +166,10 @@ export default function Main() {
           >
             Na Przystanek
           </h1>
+          <BusFront />
+        </div>
+
+        {/* prawa część: ustawienia */}
           <BusFront></BusFront>
         </div>
 
@@ -92,6 +179,8 @@ export default function Main() {
         >
           <Settings className="w-10 h-10 text-blue-600" />
         </button>
+      </div>
+      <div className="flex flex-row justify-start items-center h-1/12 gap-20 pl-5 text-blue-600 bg-blue-500/4">
         <SettingsComp
           onClose={() => setShowSettings(false)}
           showSettings={showSettings}
@@ -126,6 +215,7 @@ export default function Main() {
           )}
         </div>
       </div>
+      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
       <div className="flex flex-row justify-start items-center gap-2 pl-4 py-2 text-blue-600 bg-blue-500/4 shrink-0">
         <div className="flex flex-row items-center justify-center gap-2 w-full">
           <div className="relative w-4/5">
@@ -149,6 +239,8 @@ export default function Main() {
           </div>
         </div>
       </div>
+      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
+        <div className="flex flex-row items-center justify-center gap-2 w-full">
       <div className="flex flex-row justify-center items-center gap-2 pl-4 py-2 text-blue-600 bg-blue-500/4 shrink-0">
         <div className="flex flex-row items-center justify-center gap-2 w-4/5">
           <input
@@ -156,6 +248,7 @@ export default function Main() {
             placeholder="Dokąd chcesz jechać?"
             onFocus={() => setFocusedInput(2)}
             onBlur={() => setFocusedInput(null)}
+            className={`w-4/5 h-10 font-bold text-xl border rounded-xl p-5 pr-12
             className={`w-full h-10 font-bold text-xl border rounded-xl p-5 pr-12
                         transition-all duration-300 ease-in-out
                         h-10 px-3 text-base
@@ -166,6 +259,11 @@ export default function Main() {
           />
         </div>
       </div>
+      <div className="flex flex-row justify-between items-center h-1/10 p-10 text-blue-600 bg-blue-500/4">
+        <DatePick></DatePick>
+      </div>
+      <div className="flex flex-row justify-center items-center h-1/10 p-10 bg-blue-500/4">
+        <motion.button
       <div className="flex flex-row justify-between items-center p-4 text-blue-600 bg-blue-500/4 shrink-0">
         <DatePick></DatePick>
       </div>
@@ -180,6 +278,9 @@ export default function Main() {
           Wyszukaj trasy
         </motion.button>
       </div>
+    </div>
+  );
+}
       {showRoutes && (
         <div className="border-t border-gray-200 bg-gray-50 flex-1 overflow-y-auto overflow-x-hidden min-h-0">
           <RoutesList

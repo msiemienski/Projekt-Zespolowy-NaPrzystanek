@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: naprzystanek-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: naprzystanek
+    volumes:
+      - ./mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: naprzystanek-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      NODE_ENV: "production"
+      PORT: "4000"
+      MONGO_URI: "mongodb://mongo:27017/naprzystanek"
+      JWT_SECRET: "zmien_to_na_silny_klucz"
+      FRONTEND_ORIGIN: "http://localhost:3000"
+    ports:
+      - "4000:4000"
