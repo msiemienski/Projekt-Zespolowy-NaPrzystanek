@@ -169,6 +169,22 @@ const LoginComp = ({ onClose, showLogin }) => {
                 <div className="w-full flex flex-col items-center gap-2 mt-2">
                   <span className="text-xs text-gray-400">lub</span>
                   <div ref={googleButtonRef} />
+            <div className="w-9/10 h-3/4 max-w-[600px] sm:max-w-[700px] md:max-w-[800px] min-h-[400px] max-h-[90vh] bg-white rounded-lg p-4 sm:p-6 shadow-2xl overflow-auto">
+                
+                <div className="flex justify-between mb-4 items-center">
+                    <div className="w-6 h-6"></div>
+                    <div className="flex flex-row justify-center items-center">
+                        <h1 className="text-2xl font-bold text-black p-3 m-3">Logowanie</h1>
+                    </div>
+                    
+                    <a
+                    href="/"
+                    onClick={handleLoginCloseClick}
+                    className="text-2xl font-bold text-gray-600 hover:text-black transition-colors cursor-pointer no-underline"
+                    >
+                    <X className="w-6 h-6 text-blue-600"/>
+                    </a>
+                    
                 </div>
 
                 <div className="flex flex-row items-center justify-center flex-wrap text-sm sm:text-base mt-4">

@@ -18,14 +18,14 @@ const SettingsComp = ({ onClose, showSettings }) => {
           onClick={onClose}
         >
           <motion.div
-            className="max-w-[90vw] max-h-[90vh] overflow-auto"
+            className="w-full h-full flex items-center justify-center p-4"
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1.05, opacity: 1, y: 3 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.175, 0.885, 0.32, 1.275] }}
             onClick={(e) => e.stopPropagation()} 
           >
-            <div className="min-w-[600px] max-w-[800px] min-h-160 max-h-160 bg-white rounded-lg p-4 shadow-2xl">
+            <div className="w-9/10 h-3/4 max-w-[600px] sm:max-w-[700px] md:max-w-[800px] min-h-[400px] max-h-[90vh] bg-white rounded-lg p-4 shadow-2xl">
               <div className="flex justify-end mb-4">
                 <a
                   href="/"

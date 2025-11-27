@@ -119,6 +119,36 @@ export default function RegisterComp({ onClose, showRegister }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                <div className="w-9/10 h-3/4 max-w-[600px] sm:max-w-[700px] md:max-w-[800px] min-h-[400px] max-h-[90vh] bg-white rounded-lg p-4 sm:p-6 shadow-2xl overflow-auto">
+                    
+                        <div className="flex justify-between mb-4 items-center">
+                            <div className="w-6 h-6"></div>
+                            <div className="flex flex-row justify-center items-center">
+                                <h1 className="text-2xl font-bold text-black p-3 m-3">Rejestracja</h1>
+                            </div>
+                            
+                            <a
+                            href="/"
+                            onClick={handleRegisterCloseClick}
+                            className="text-2xl font-bold text-gray-600 hover:text-black transition-colors cursor-pointer no-underline"
+                            >
+                            <X className="w-6 h-6 text-blue-600"/>
+                            </a>
+                            
+                        </div>
+                        <div className="flex flex-col items-center justify-center text-black w-full">
+                            
+                            <div className="flex flex-col items-center justify-center w-full sm:w-2/3 p-4 sm:p-6 md:p-10 gap-4">
+                                <input type="text" placeholder="Email" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                                <input type="password" placeholder="Hasło" className="w-full h-10 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                                <div className="flex flex-row items-center justify-center flex-wrap text-sm sm:text-base">
+                                    Masz już konto? <button onClick={handleRegisterCloseClick} className="text-black hover:text-blue-800 transition-colors cursor-pointer underline p-1 gap-1">Zaloguj się</button>    
+                                </div>
+                            </div>
+                            
+                            
+                            <button className="text-lg sm:text-xl font-bold/90 w-full sm:w-2/3 h-10 bg-sky-400 text-white rounded-xl hover:bg-sky-600 transition-all duration-300 cursor-pointer mt-4">Zarejestruj się</button>
+                        </div>
 
                 <input
                   type="password"
