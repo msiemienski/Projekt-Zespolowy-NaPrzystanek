@@ -1,5 +1,7 @@
 import "./globals.css";
 import { Poppins } from "next/font/google";
+import Script from "next/script";
+
 
 const poppins = Poppins({
   weight: ["400", "600", "700"],
@@ -9,10 +11,13 @@ const poppins = Poppins({
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className="bg-gray-400">
+    <html lang="pl">
+      <body>
         {children}
-        
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

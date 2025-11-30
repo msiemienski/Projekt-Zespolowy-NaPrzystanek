@@ -1,0 +1,287 @@
+Poniżej przygotowałem spójną, czytelną dokumentację wszystkich zmian i funkcjonalności, które już zostały wdrożone w projekcie.
+Dokumentacja jest gotowa do:
+
+umieszczenia w repozytorium jako docs/authentication.md,
+
+przekazania zespołowi,
+
+wykorzystania podczas dalszej implementacji.
+
+Jeśli chcesz, mogę przygotować również wersję PDF, Markdown, Wiki lub poszerzoną o diagramy.
+
+Dokumentacja: System logowania i rejestracji użytkowników
+
+Projekt: NaPrzystanek – MERN + Next.js
+
+1. Podsumowanie
+
+W projekcie dodano pełny system uwierzytelniania użytkowników z wykorzystaniem:
+
+logowania i rejestracji przez email + hasło,
+
+logowania przez Google (Google Identity Services),
+
+sesji opartych na JWT przechowywanym w HttpOnly cookie,
+
+obsługi stanu zalogowania w interfejsie,
+
+wylogowania i prezentacji nazwy użytkownika.
+
+Rozwiązanie działa w architekturze:
+
+Frontend: Next.js 16 + Webpack, React Components (.js), Tailwind CSS
+
+Backend: Node.js + Express + MongoDB + Mongoose
+
+Uwierzytelnianie: JWT + Google Identity
+
+2. Backend – zmiany i funkcjonalności
+2.1. Routing autoryzacji
+
+Dodano plik backend/src/routes/authRoutes.js z trasami:
+
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/google
+GET  /api/auth/me
+
+
+Trasy powiązane są z logiką w authController.js.
+
+2.2. Logowanie i rejestracja (email + hasło)
+Rejestracja
+
+Zmiany:
+
+Walidacja hasła (min. 8 znaków, wielka litera, znak specjalny).
+
+Sprawdzenie czy email już istnieje.
+
+Automatyczna nazwa użytkownika (jeśli nie podana – część emaila przed @).
+
+Hashowanie hasła (bcrypt) przed zapisem.
+
+Automatyczne logowanie po rejestracji (ustawienie ciasteczka JWT).
+
+Logowanie
+
+Zmiany:
+
+Weryfikacja email + poprawności hasła (bcrypt.compare).
+
+Ustawienie cookie JWT po poprawnym logowaniu.
+
+Model użytkownika
+
+W bazie przechowywane jest:
+
+email
+name
+passwordHash
+
+
+Hasło nigdy nie trafia do bazy w formie jawnej.
+
+2.3. JWT – obsługa sesji
+
+Tworzony jest JWT:
+
+payload: { sub: userId }
+expiresIn: 7 days
+
+
+Zapis do ciasteczka:
+
+httpOnly: true  
+sameSite: strict (prod) / lax (dev)
+secure: true w produkcji
+
+
+Ciasteczko umożliwia utrzymanie sesji bez trzymania tokenów w LocalStorage.
+
+2.4. Google Login (Google Identity + ID Token)
+Implementacja:
+
+Frontend pobiera Google ID Token.
+
+Wysyła go na backend:
+
+POST /api/auth/google
+{ idToken: string }
+
+
+Backend weryfikuje token przez google-auth-library.
+
+Jeśli użytkownik nie istnieje → tworzy konto („Google user”).
+
+Zwraca zwykły JWT i ustawia cookie.
+
+Zabezpieczenia:
+
+Weryfikacja audience (GOOGLE_CLIENT_ID)
+
+Wymuszenie emaila z Google
+
+Losowe hasło generowane dla kont Google (nie używane w praktyce)
+
+2.5. Pobieranie użytkownika (GET /api/auth/me)
+
+Middleware requireAuth:
+
+odczytuje JWT z cookie,
+
+dekoduje sub,
+
+dołącza req.userId.
+
+2.6. Wylogowanie
+POST /api/auth/logout
+
+
+Czyści ciasteczko JWT.
+
+3. Frontend – zmiany i funkcjonalności
+3.1. Główne zmiany w Main.js
+
+Dodano currentUser w stanie komponentu.
+
+Dodano useEffect → wywołanie GET /api/auth/me przy starcie.
+
+Wprowadzono logikę warunkową UI:
+
+Gdy użytkownik NIE jest zalogowany:
+
+✔ widoczna ikona użytkownika
+✔ kliknięcie otwiera LoginComp
+
+Gdy użytkownik JEST zalogowany:
+
+✔ przycisk Wyloguj
+✔ obok wyświetlana jest nazwa użytkownika
+✔ brak możliwości ponownego logowania
+
+3.2. Plik LoginComp.js
+
+Dodano:
+
+1. Logowanie standardowe (email + hasło)
+
+wysyłanie żądania do /api/auth/login
+
+obsługa błędów, ładowania, walidacji
+
+2. Logowanie przez Google
+
+załadowanie skryptu Google z layoutu
+
+wygenerowanie przycisku Google za pomocą:
+
+window.google.accounts.id.initialize()
+window.google.accounts.id.renderButton()
+
+
+wysłanie Google ID Token do backendu: /api/auth/google
+
+automatyczne odświeżenie UI po logowaniu
+
+3.3. Plik RegisterComp.js
+
+Dodano:
+
+1. Walidacja hasła:
+
+hasło >= 8 znaków
+
+1 wielka litera
+
+1 znak specjalny
+
+zgodność hasło / powtórz hasło
+
+2. Logika rejestracji:
+
+wysyłanie żądania POST /api/auth/register
+
+automatyczne logowanie po rejestracji
+
+odświeżenie strony
+
+3. UI:
+
+trzy inputy: email, hasło, powtórz hasło
+
+komunikaty błędów
+
+opis wymagań hasła
+
+4. Integracja z MongoDB
+Połączenie:
+MONGO_URI=mongodb://127.0.0.1:27017/naprzystanek
+
+Konfiguracja:
+
+Połączenie zarządzane w connectDB
+
+Walidacja poprawności URI
+
+Logowanie błędów połączenia
+
+5. Zmiany infrastrukturalne
+5.1. Naprawa błędu Turbopack (Next.js)
+
+przełączenie dev servera na Webpack:
+
+"dev": "next dev --webpack"
+
+5.2. Rozwiązanie błędu EADDRINUSE
+
+port backendu 4000 był zajęty → proces został ubity lub port zmieniony.
+
+5.3. Zmienne środowiskowe
+
+Backend (backend/.env):
+
+PORT=4000
+JWT_SECRET=...
+MONGO_URI=...
+GOOGLE_CLIENT_ID=...
+FRONTEND_ORIGIN=http://localhost:3000
+
+
+Frontend (frontend/.env.local):
+
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=...
+
+6. Co aktualnie działa
+
+✔ Rejestracja z walidacją
+✔ Logowanie standardowe
+✔ Logowanie Google
+✔ Wylogowanie
+✔ Sesje na JWT w HttpOnly cookies
+✔ Utrzymanie stanu po odświeżeniu
+✔ Blokowanie UI dla niezalogowanych
+✔ Hashowanie haseł w bazie
+✔ Informacja o zalogowanym użytkowniku (imię / email)
+
+7. Co możemy zrobić w kolejnych etapach
+
+Jeśli chcesz, mogę przygotować:
+
+A. System ról (Admin / User)
+
+dostęp do panelu admina,
+
+zarządzanie przystankami, rozkładami, użytkownikami.
+
+B. Reset hasła przez email (Magic Link)
+
+obsługa tokenów resetu,
+
+integracja z SMTP / Gmail API.
+
+C. Edycja profilu (zmiana hasła, nazwy)
+D. Docker Compose – uruchamianie całego projektu jednym poleceniem
+E. Wprowadzenie TypeScript lub Prisma (jeśli planujecie w przyszłości)
