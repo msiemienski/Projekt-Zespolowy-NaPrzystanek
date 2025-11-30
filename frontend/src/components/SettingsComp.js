@@ -23,16 +23,16 @@ const SettingsComp = ({ onClose, showSettings }) => {
             animate={{ scale: 1.05, opacity: 1, y: 3 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.175, 0.885, 0.32, 1.275] }}
-            onClick={(e) => e.stopPropagation()} 
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="min-w-[600px] max-w-[800px] min-h-160 max-h-160 bg-white rounded-lg p-4 shadow-2xl">
+            <div className="w-11/12 max-w-full h-auto min-h-[300px] bg-white rounded-lg p-4 shadow-2xl">
               <div className="flex justify-end mb-4">
                 <a
                   href="/"
                   onClick={handleCloseClick}
                   className="text-2xl font-bold text-gray-600 hover:text-black transition-colors cursor-pointer no-underline"
                 >
-                  <X className="w-6 h-6 text-blue-600"/>
+                  <X className="w-6 h-6 text-blue-600" />
                 </a>
               </div>
 

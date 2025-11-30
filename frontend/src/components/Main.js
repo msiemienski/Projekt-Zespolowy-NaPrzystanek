@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import DatePick from "./DatePick";
 import SettingsComp from "./SettingsComp";
 import LoginComp from "./LoginComp";
+import TripList from "./TripList";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -67,9 +68,19 @@ export default function Main() {
     setCurrentUser(null);
   };
 
+  const [showResults, setShowResults] = useState(false);
+
+  const handleSearch = () => {
+    setShowResults(true);
+  };
+
+  const handleBack = () => {
+    setShowResults(false);
+  };
+
   return (
-    <div className="bg-white w-auto h-auto min-w-196 min-h-196 max-w-2xl max-h-[800px] m-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-102 relative">
-      <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100 bg-sky-500/3">
+    <div className="bg-white w-full h-full max-h-full rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-[1.02] relative flex flex-col overflow-hidden">
+      <div className="flex flex-row items-center justify-between h-1/12 p-2 border-b border-gray-100 bg-sky-500/3 shrink-0">
         {/* lewa część: logowanie / wylogowanie */}
         {!currentUser && (
           <>
@@ -119,7 +130,7 @@ export default function Main() {
           <Settings className="w-10 h-10 text-blue-600" />
         </button>
       </div>
-      <div className="flex flex-row justify-start items-center h-1/12 gap-20 pl-5 text-blue-600 bg-blue-500/4">
+      <div className="flex flex-row justify-start items-center h-1/12 gap-20 pl-5 text-blue-600 bg-blue-500/4 shrink-0">
         <div className="flex flex-row items-center justify-center gap-2 relative">
           <button
             value={selected}
@@ -148,7 +159,7 @@ export default function Main() {
           )}
         </div>
       </div>
-      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
+      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4 shrink-0">
         <div className="flex flex-row items-center justify-center gap-2 w-full">
           <div className="relative w-4/5">
             <input
@@ -171,7 +182,7 @@ export default function Main() {
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4">
+      <div className="flex flex-row justify-start items-center h-1/10 gap-2 pl-5 text-blue-600 bg-blue-500/4 shrink-0">
         <div className="flex flex-row items-center justify-center gap-2 w-full">
           <input
             type="text"
@@ -188,19 +199,26 @@ export default function Main() {
           />
         </div>
       </div>
-      <div className="flex flex-row justify-between items-center h-1/10 p-10 text-blue-600 bg-blue-500/4">
+      <div className="flex flex-row justify-between items-center h-1/10 p-10 text-blue-600 bg-blue-500/4 shrink-0">
         <DatePick></DatePick>
       </div>
-      <div className="flex flex-row justify-center items-center h-1/10 p-10 bg-blue-500/4">
+      <div className="flex flex-row justify-center items-center h-1/10 p-10 bg-blue-500/4 shrink-0">
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 300 }}
-          className="text-lg sm:text-xl font-bold/90 w-full sm:w-1/3 h-10 bg-red-400/90 text-white rounded-xl hover:bg-red-400 cursor-pointer mt-4 shadow-lg"
+          onClick={handleSearch}
+          className="text-lg font-bold/90 w-auto px-8 py-2 bg-red-400/90 text-white rounded-xl hover:bg-red-400 cursor-pointer mt-4 shadow-lg whitespace-nowrap"
         >
           Wyszukaj trasy
         </motion.button>
       </div>
+
+      {showResults && (
+        <div className="flex-1 overflow-hidden w-full relative animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <TripList />
+        </div>
+      )}
     </div>
   );
 }

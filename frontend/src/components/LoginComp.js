@@ -122,11 +122,11 @@ const LoginComp = ({ onClose, showLogin }) => {
             exit={{ scale: 0.9 }}
           >
             <div
-              className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 h-3/4 bg-white rounded-3xl shadow-xl flex flex-col overflow-hidden"
+              className="w-11/12 h-auto max-h-[90%] bg-white rounded-3xl shadow-xl flex flex-col overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-row items-center justify-between p-4 border-b border-gray-100">
-                <h2 className="text-xl sm:text-2xl font-bold">Logowanie</h2>
+                <h2 className="text-xl font-bold">Logowanie</h2>
                 <button
                   onClick={handleLoginCloseClick}
                   className="p-1 rounded-full hover:bg-gray-100 transition"
@@ -135,7 +135,7 @@ const LoginComp = ({ onClose, showLogin }) => {
                 </button>
               </div>
 
-              <div className="flex flex-col items-center justify-center w-full sm:w-2/3 mx-auto p-4 sm:p-6 md:p-10 gap-4">
+              <div className="flex flex-col items-center justify-center w-full mx-auto p-4 gap-4">
                 <input
                   type="text"
                   placeholder="Email"

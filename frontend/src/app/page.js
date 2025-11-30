@@ -3,10 +3,11 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    
-    <div className="flex flex-col justify-start items-left h-screen pt-10 pl-10">
-      <Main></Main>
 
+    <div className="flex h-screen w-screen overflow-hidden bg-[var(--background)]">
+      <div className="w-full md:w-1/3 h-full p-6 flex flex-col justify-center">
+        <Main />
+      </div>
     </div>
   );
 }
