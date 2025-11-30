@@ -1,18 +1,9 @@
 "use client";
 
-"use client";
-
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useState, useEffect, useRef } from "react";
 import RegisterComp from "./RegisterComp";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
-
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -25,97 +16,7 @@ const LoginComp = ({ onClose, showLogin }) => {
     onClose();
   };
 
-
   const [showRegister, setShowRegister] = useState(false);
-
-  // stan formularza logowania klasycznego
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // przycisk Google
-  const googleButtonRef = useRef(null);
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setError(data.message || "Nie udało się zalogować");
-        setLoading(false);
-        return;
-      }
-
-      onClose();
-      setLoading(false);
-
-      if (typeof window !== "undefined") {
-        window.location.reload();
-      }
-    } catch (err) {
-      setError("Błąd połączenia z serwerem");
-      setLoading(false);
-    }
-  };
-
-  // Inicjalizacja przycisku Google, gdy modal jest otwarty
-  useEffect(() => {
-    if (!showLogin) return;
-    if (typeof window === "undefined") return;
-    if (!window.google) return;
-    if (!googleButtonRef.current) return;
-    if (!GOOGLE_CLIENT_ID) return;
-
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: async (response) => {
-        try {
-          const res = await fetch(`${API_BASE}/api/auth/google`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify({ idToken: response.credential })
-          });
-
-          if (res.ok) {
-            onClose();
-            if (typeof window !== "undefined") {
-              window.location.reload();
-            }
-          } else {
-            // Możesz tu dodać setError z komunikatem, jeśli chcesz
-          }
-        } catch (e) {
-          // Możesz tu dodać setError z komunikatem, jeśli chcesz
-        }
-      }
-    });
-
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
-      type: "standard",
-      theme: "outline",
-      size: "large",
-      text: "continue_with",
-      shape: "pill"
-    });
-  }, [showLogin]);
-
 
   // stan formularza logowania klasycznego
   const [email, setEmail] = useState("");
@@ -210,7 +111,6 @@ const LoginComp = ({ onClose, showLogin }) => {
       {showLogin && (
         <motion.div
           className="absolute top-0 left-0 right-0 bottom-0 bg-black/40 flex items-center justify-center z-50 text-blue-600"
-          className="absolute top-0 left-0 right-0 bottom-0 bg-black/40 flex items-center justify-center z-50 text-blue-600"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -289,9 +189,8 @@ const LoginComp = ({ onClose, showLogin }) => {
             </div>
           </motion.div>
         </motion.div>
-      )
-      }
-    </AnimatePresence >
+      )}
+    </AnimatePresence>
   );
 };
 

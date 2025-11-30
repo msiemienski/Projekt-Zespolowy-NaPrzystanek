@@ -7,15 +7,6 @@ import {
   ChevronsUpDown,
   LocateIcon,
 } from "lucide-react";
-"use client";
-import {
-  Settings,
-  User,
-  BusFront,
-  Building2,
-  ChevronsUpDown,
-  LocateIcon,
-} from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import DatePick from "./DatePick";
@@ -213,4 +204,3 @@ export default function Main() {
     </div>
   );
 }
-
