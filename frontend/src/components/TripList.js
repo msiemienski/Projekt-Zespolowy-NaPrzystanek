@@ -43,7 +43,7 @@ const MOCK_TRIPS = [
 
 export default function TripList() {
     return (
-        <div className="flex flex-col h-full w-full bg-white border-t border-gray-100">
+        <div className="flex flex-col h-full w-full transition-all duration-500" style={{ backgroundColor: 'var(--bg-main)', borderTopColor: 'var(--border-secondary)', borderTopWidth: '1px' }}>
             {/* List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {MOCK_TRIPS.map((trip, index) => (
@@ -52,41 +52,54 @@ export default function TripList() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                        className="rounded-2xl p-4 transition-all duration-500 cursor-pointer group"
+                        style={{
+                            backgroundColor: 'var(--bg-dropdown)',
+                            borderColor: 'var(--border-secondary)',
+                            borderWidth: '1px',
+                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                        }}
                     >
                         <div className="flex flex-row justify-between items-start mb-3">
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-2xl font-bold text-gray-800">
+                                    <span className="text-2xl font-bold transition-colors duration-500" style={{ color: 'var(--text-primary)' }}>
                                         {trip.departure}
                                     </span>
-                                    <span className="text-gray-400 text-sm">➔</span>
-                                    <span className="text-xl font-semibold text-gray-600">
+                                    <span className="text-sm transition-colors duration-500" style={{ color: 'var(--text-placeholder)' }}>➔</span>
+                                    <span className="text-xl font-semibold transition-colors duration-500" style={{ color: 'var(--text-primary)' }}>
                                         {trip.arrival}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                                    <Clock className="w-3 h-3" />
+                                <div className="flex items-center gap-1 text-sm mt-1 transition-colors duration-500" style={{ color: 'var(--text-placeholder)' }}>
+                                    <Clock className="w-3 h-3 transition-colors duration-500" style={{ color: 'var(--text-placeholder)' }} />
                                     <span>{trip.duration}</span>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end">
-                                <span className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg text-sm">
+                                <span className="font-bold px-2 py-1 rounded-lg text-sm transition-colors duration-500" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
                                     {trip.price}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="flex flex-row items-center gap-2 mt-2 pt-3 border-t border-gray-50">
+                        <div className="flex flex-row items-center gap-2 mt-2 pt-3 transition-colors duration-500" style={{ borderTopColor: 'var(--border-secondary)', borderTopWidth: '1px' }}>
                             {trip.lines.map((line, i) => (
                                 <span
                                     key={i}
-                                    className={`flex items-center justify-center px-2 py-1 rounded text-xs font-bold ${line === "SKM"
-                                            ? "bg-yellow-100 text-yellow-700"
-                                            : "bg-red-100 text-red-700"
-                                        }`}
+                                    className="flex items-center justify-center px-2 py-1 rounded text-xs font-bold transition-colors duration-500"
+                                    style={line === "SKM"
+                                        ? { backgroundColor: 'rgba(234, 179, 8, 0.2)', color: '#ca8a04' }
+                                        : { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#dc2626' }
+                                    }
                                 >
-                                    {line === "SKM" ? <Train className="w-3 h-3 mr-1" /> : <Bus className="w-3 h-3 mr-1" />}
+                                    {line === "SKM" ? <Train className="w-3 h-3 mr-1 transition-colors duration-500" /> : <Bus className="w-3 h-3 mr-1 transition-colors duration-500" />}
                                     {line}
                                 </span>
                             ))}

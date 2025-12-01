@@ -29,12 +29,22 @@ export default function DatePick() {
     return (
         <div className="w-full">
             <DatePicker
+                
                 selected={selectedDate}
                 onChange={(date) => onDateChange(date)}
                 dateFormat={onceChanged ? "d MMMM yyyy HH:mm" : "HH:mm"}
                 locale={pl}
                 showTimeInput
-                className="w-full px-4 py-3 text-base font-semibold text-blue-600 bg-white border-2 border-gray-200 rounded-xl transition-all duration-300 cursor-pointer hover:border-gray-300 hover:shadow-md focus:outline-none focus:ring-blue-400 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-20"
+                className="w-full px-4 py-3 text-base font-semibold text-blue-600 dark:text-white bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 cursor-pointer hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md focus:outline-none focus:ring-blue-400 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-20"
+                style={{
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                }}
+                onMouseEnter={(e) => {
+                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                }}
+                onMouseLeave={(e) => {
+                    e.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)';
+                }}
             />
         </div>
     )

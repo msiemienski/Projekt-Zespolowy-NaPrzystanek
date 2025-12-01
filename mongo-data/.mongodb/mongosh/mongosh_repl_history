@@ -1,0 +1,5 @@
+db.users.find()
+show collections
+use naprzystanek
+show tables
+ls
