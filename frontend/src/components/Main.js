@@ -44,6 +44,8 @@ export default function Main() {
         if (res.ok) {
           const data = await res.json();
           setCurrentUser(data);
+        } else if (res.status === 401) {
+          setCurrentUser(null);
         } else {
           setCurrentUser(null);
         }

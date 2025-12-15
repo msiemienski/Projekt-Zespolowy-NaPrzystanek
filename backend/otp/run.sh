@@ -1,0 +1,2 @@
+java -Xmx4G -jar otp-shaded-2.8.1.jar --load --serve ztm
+# najlepiej skopiowac ta komende uruchomić w osobnym terminalu niz przez ./run.sh bo pozniej ciezej znalezc proces jak chce sie go zakonczyc na windows oczywiscie bez wsl.
