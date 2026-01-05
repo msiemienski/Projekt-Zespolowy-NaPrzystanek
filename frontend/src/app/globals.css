@@ -3,53 +3,74 @@
 :root {
   --background: #f1fde1;
   --foreground: #ff0000;
-  
+
   /* Kolory tekstu */
-  --text-primary: #2563eb; /* blue-600 */
-  --text-secondary: #1e40af; /* blue-800 */
-  --text-placeholder: #3b82f6; /* blue-500 */
-  
+  --text-primary: #2563eb;
+  /* blue-600 */
+  --text-secondary: #1e40af;
+  /* blue-800 */
+  --text-placeholder: #3b82f6;
+  /* blue-500 */
+
   /* Kolory tła */
   --bg-main: #ffffff;
-  --bg-section: rgba(59, 130, 246, 0.04); /* blue-500/4 */
-  --bg-header: rgba(14, 165, 233, 0.03); /* sky-500/3 */
+  --bg-section: rgba(59, 130, 246, 0.04);
+  /* blue-500/4 */
+  --bg-header: rgba(14, 165, 233, 0.03);
+  /* sky-500/3 */
   --bg-input: #ffffff;
   --bg-button: #ffffff;
-  --bg-button-hover: #eff6ff; /* blue-50 */
+  --bg-button-hover: #eff6ff;
+  /* blue-50 */
   --bg-dropdown: #ffffff;
-  --bg-dropdown-hover: #f3f4f6; /* gray-100 */
+  --bg-dropdown-hover: #f3f4f6;
+  /* gray-100 */
   --bg-date: #ffffff;
   /* Kolory obramowań */
-  --border-primary: #d1d5db; /* gray-300 */
-  --border-secondary: #e5e7eb; /* gray-100 */
-  
+  --border-primary: #d1d5db;
+  /* gray-300 */
+  --border-secondary: #e5e7eb;
+  /* gray-100 */
+
   /* Kolory ikon */
-  --icon-primary: #2563eb; /* blue-600 */
+  --icon-primary: #2563eb;
+  /* blue-600 */
 }
 
 .dark {
   --background: #000000;
   --foreground: #ffffff;
-  
+
   /* Kolory tekstu - wszystkie białe */
   --text-primary: #ffffff;
   --text-secondary: #ffffff;
-  --text-placeholder: #9ca3af; /* gray-400 */
-  
+  --text-placeholder: #9ca3af;
+  /* gray-400 */
+
   /* Kolory tła - czarne i szare */
   --bg-main: #000000;
-  --bg-section: rgba(17, 24, 39, 0.5); /* gray-900/50 */
-  --bg-header: rgba(17, 24, 39, 0.5); /* gray-900/50 */
-  --bg-input: #1f2937; /* gray-800 */
-  --bg-button: #1f2937; /* gray-800 */
-  --bg-button-hover: #111827; /* gray-800 */
-  --bg-dropdown: #1f2937; /* gray-800 */
-  --bg-dropdown-hover: #374151; /* gray-700 */
-  --bg-date: #1f2937; /* gray-800 */
+  --bg-section: rgba(17, 24, 39, 0.5);
+  /* gray-900/50 */
+  --bg-header: rgba(17, 24, 39, 0.5);
+  /* gray-900/50 */
+  --bg-input: #1f2937;
+  /* gray-800 */
+  --bg-button: #1f2937;
+  /* gray-800 */
+  --bg-button-hover: #111827;
+  /* gray-800 */
+  --bg-dropdown: #1f2937;
+  /* gray-800 */
+  --bg-dropdown-hover: #374151;
+  /* gray-700 */
+  --bg-date: #1f2937;
+  /* gray-800 */
   /* Kolory obramowań */
-  --border-primary: #4b5563; /* gray-600 */
-  --border-secondary: #1f2937; /* gray-800 */
-  
+  --border-primary: #4b5563;
+  /* gray-600 */
+  --border-secondary: #1f2937;
+  /* gray-800 */
+
   /* Kolory ikon - wszystkie białe */
   --icon-primary: #ffffff;
 }
@@ -73,9 +94,18 @@ input::placeholder {
   color: var(--text-placeholder);
   opacity: 1;
 }
+
 .react-datepicker-wrapper input {
   background-color: var(--bg-date);
   color: var(--text-primary);
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
 }
 
 .react-datepicker-popper {
@@ -118,6 +148,7 @@ input::placeholder {
 .dark .react-datepicker__header {
   background: linear-gradient(135deg, #1e3a8a 50%, #1e40af 100%);
 }
+
 .react-datepicker__current-month {
   color: white;
   font-weight: 700;
@@ -374,17 +405,21 @@ html.dark .react-datepicker-popper .react-datepicker__time-list-item {
   color: #374151;
 
 }
-.react-datepicker-time__input{
+
+.react-datepicker-time__input {
   margin: 0 !important;
 }
-.react-datepicker__input-time-container .react-datepicker-time__input-container{
+
+.react-datepicker__input-time-container .react-datepicker-time__input-container {
   margin: 0 !important;
 }
+
 .dark .react-datepicker__input-time-container .react-datepicker-time__input,
 html.dark .react-datepicker__input-time-container .react-datepicker-time__input,
 html.dark .react-datepicker-popper .react-datepicker__input-time-container .react-datepicker-time__input {
   color: #ffffff !important;
 }
+
 .react-datepicker-time__input::-webkit-calendar-picker-indicator {
   opacity: 0;
   display: none;

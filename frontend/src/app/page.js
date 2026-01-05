@@ -19,12 +19,12 @@ export default function Home() {
         <Map />
       </div>
       {/* główna zawartość */}
-      <div className="relative z-10 flex h-full w-full overflow-auto pointer-events-none">
-        <div className="w-full md:w-1/3 h-full p-6 flex flex-col justify-center pointer-events-auto">
+      <div className="relative z-10 flex h-full w-full overflow-hidden pointer-events-none p-4 sm:p-6">
+        <div className="w-full sm:max-w-[400px] md:max-w-[450px] h-full flex flex-col justify-center pointer-events-auto">
           <Main />
         </div>
       </div>
     </div>
-    
+
   );
 }
