@@ -36,3 +36,8 @@ out/
 *.tmp
 *.temp
 
+# OTP - Large binary files (excluded from repo)
+backend/otp/*.jar
+backend/otp/**/*.obj
+backend/otp/**/*.pbf
+backend/otp/**/*.zip

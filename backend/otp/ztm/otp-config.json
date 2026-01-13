@@ -1,0 +1,7 @@
+{
+  "otpFeatures": {
+    "SandboxAPIMapboxVectorTilesApi": true,
+    "SandboxAPIGeocoder": true
+  }
+  
+}

@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import DatePick from "./DatePick";
+import AddressSearch from "./AddressSearch";
 import SettingsComp from "./SettingsComp";
 import LoginComp from "./LoginComp";
 import TripList from "./TripList";
@@ -44,6 +45,8 @@ export default function Main() {
         if (res.ok) {
           const data = await res.json();
           setCurrentUser(data);
+        } else if (res.status === 401) {
+          setCurrentUser(null);
         } else {
           setCurrentUser(null);
         }
@@ -76,15 +79,15 @@ export default function Main() {
     if (showLogin || showSettings) {
       // Zapisz szerokość scrollbara przed zablokowaniem
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      
+
       // Zablokuj scroll na body
       document.body.style.overflow = "hidden";
-      
+
       // Zablokuj scroll na głównym kontenerze Main
       if (mainContainerRef.current) {
         mainContainerRef.current.style.overflow = "hidden";
       }
-      
+
       // Dodaj padding, żeby zrekompensować szerokość scrollbara
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
@@ -93,7 +96,7 @@ export default function Main() {
       // Przywróć normalny scroll
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
-      
+
       // Przywróć overflow na głównym kontenerze
       if (mainContainerRef.current) {
         mainContainerRef.current.style.overflow = "auto";
@@ -111,8 +114,15 @@ export default function Main() {
   }, [showLogin, showSettings]);
 
   const [showResults, setShowResults] = useState(false);
+  const [from, setFrom] = useState(null);
+  const [to, setTo] = useState(null);
 
   const handleSearch = () => {
+    if (!from || !to) {
+      alert("Wybierz zarówno punkt startowy, jak i docelowy.");
+      return;
+    }
+    console.log("Szukaj trasy od:", from, "do:", to);
     setShowResults(true);
   };
 
@@ -121,12 +131,12 @@ export default function Main() {
   };
 
   return (
-    <div 
+    <div
       ref={mainContainerRef}
-      className="w-full h-full max-h-full rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-[1.02] relative flex flex-col overflow-auto"
+      className="w-full h-full max-h-full rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 relative flex flex-col overflow-auto"
       style={{ backgroundColor: 'var(--bg-main)' }}
     >
-      <div className="flex flex-row items-center justify-between min-h-[8.333%] p-1 sm:p-2 border-b shrink-0 relative overflow-hidden" style={{ borderColor: 'var(--border-secondary)', backgroundColor: 'var(--bg-header)' }}>
+      <div className="flex flex-row items-center justify-between p-3 sm:p-4 border-b shrink-0 relative overflow-hidden" style={{ borderColor: 'var(--border-secondary)', backgroundColor: 'var(--bg-header)' }}>
         {/* lewa część: logowanie / wylogowanie */}
         {!currentUser && (
           <button
@@ -138,13 +148,13 @@ export default function Main() {
         )}
 
         {currentUser && (
-          <div className="flex flex-col items-start gap-1 min-w-0 flex-shrink-0 z-10 pr-2" style={{ maxWidth: 'calc(50% - 60px)' }}>
+          <div className="flex flex-col items-start gap-1 min-w-0 flex-shrink-0 z-10 pr-2" style={{ maxWidth: '40%' }}>
             <button
               onClick={handleLogout}
               className="px-2 py-1 rounded-xl border text-xs transition whitespace-nowrap flex-shrink-0"
-              style={{ 
-                borderColor: 'var(--border-primary)', 
-                color: 'var(--text-primary)', 
+              style={{
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-primary)',
                 backgroundColor: 'var(--bg-button)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-button-hover)'}
@@ -177,7 +187,7 @@ export default function Main() {
           <Settings className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: 'var(--icon-primary)' }} />
         </button>
       </div>
-      <div className="flex flex-row justify-start items-center min-h-[8.333%] gap-4 sm:gap-20 pl-5 shrink-0 overflow-visible" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
+      <div className="flex flex-row justify-start items-center py-3 px-5 shrink-0 overflow-visible" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
         <div className="flex flex-row items-center justify-center gap-2 relative">
           <button
             value={selected}
@@ -209,77 +219,88 @@ export default function Main() {
           )}
         </div>
       </div>
-      <div className="flex flex-row justify-start items-center min-h-[10%] gap-2 pl-5 shrink-0 overflow-auto" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
+      <div className="flex flex-row justify-start items-center py-2 px-5 shrink-0 overflow-visible" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
         <div className="flex flex-row items-center justify-center gap-2 w-full">
-          <div className="relative w-4/5">
-            <input
-              type="text"
-              placeholder="Skąd chcesz jechać?"
-              className={`w-full h-10 font-bold text-base sm:text-xl border rounded-xl p-3 sm:p-5 pr-12
+          <div className="relative w-full sm:w-4/5">
+            <AddressSearch
+              onSelect={(loc) => setFrom(loc)}
+              inputProps={{
+                className: `w-full h-10 font-bold text-base sm:text-base border rounded-xl p-3 sm:p-5 pr-12
                         transition-all duration-300 ease-in-out
                         h-10 px-3
                         ${focusedInput === 1 ? "h-12 text-lg" : ""}
-                        rounded focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500
-                        `}
-              style={{
-                borderColor: 'var(--border-primary)',
-                backgroundColor: 'var(--bg-input)',
-                color: 'var(--text-primary)'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#60a5fa';
-                setFocusedInput(1);
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'var(--border-primary)';
-                setFocusedInput(null);
+                        rounded focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500`,
+                style: {
+                  borderColor: 'var(--border-primary)',
+                  backgroundColor: 'var(--bg-input)',
+                  color: 'var(--text-primary)'
+                },
+                placeholder: 'Skąd chcesz jechać?',
+                onFocus: (e) => {
+                  e.target.style.borderColor = '#60a5fa';
+                  setFocusedInput(1);
+                },
+                onBlur: (e) => {
+                  e.target.style.borderColor = 'var(--border-primary)';
+                  setFocusedInput(null);
+                }
               }}
             />
 
-            <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-full" style={{ color: 'var(--icon-primary)' }}>
-              <LocateIcon className="w-6 h-6 cursor-pointer" style={{ color: 'var(--icon-primary)' }} />
+            <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors" style={{ color: 'var(--icon-primary)' }}>
+              <LocateIcon className="w-5 h-5 sm:w-6 h-6 cursor-pointer" style={{ color: 'var(--icon-primary)' }} />
             </button>
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-start items-center min-h-[10%] gap-2 pl-5 shrink-0 overflow-auto" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
+      <div className="flex flex-row justify-start items-center py-2 px-5 shrink-0 overflow-visible" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
         <div className="flex flex-row items-center justify-center gap-2 w-full">
-          <input
-            type="text"
-            placeholder="Dokąd chcesz jechać?"
-            className={`w-4/5 h-10 font-bold text-base sm:text-xl border rounded-xl p-3 sm:p-5 pr-12
+          <div className="relative w-full sm:w-4/5">
+            <AddressSearch
+              onSelect={(loc) => setTo(loc)}
+              inputProps={{
+                className: `w-full h-10 font-bold text-base sm:text-medium border rounded-xl p-3 sm:p-5
                         transition-all duration-300 ease-in-out
                         h-10 px-3
                         ${focusedInput === 2 ? "h-12 text-lg" : ""}
-                        rounded focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500
-                        `}
-            style={{
-              borderColor: 'var(--border-primary)',
-              backgroundColor: 'var(--bg-input)',
-              color: 'var(--text-primary)',
-              '--placeholder-color': 'var(--text-placeholder)'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#60a5fa';
-              setFocusedInput(2);
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'var(--border-primary)';
-              setFocusedInput(null);
-            }}
-          />
+                        rounded focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500`,
+                style: {
+                  borderColor: 'var(--border-primary)',
+                  backgroundColor: 'var(--bg-input)',
+                  color: 'var(--text-primary)',
+                  '--placeholder-color': 'var(--text-placeholder)'
+                },
+                placeholder: 'Dokąd chcesz jechać?',
+                onFocus: (e) => {
+                  e.target.style.borderColor = '#60a5fa';
+                  setFocusedInput(2);
+                },
+                onBlur: (e) => {
+                  e.target.style.borderColor = 'var(--border-primary)';
+                  setFocusedInput(null);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
-      <div className="flex flex-row justify-between items-center min-h-[10%] p-10 shrink-0" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
-        <DatePick></DatePick>
+      <div className="flex flex-row justify-center items-center py-4 px-5 shrink-0" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
+        <div className="w-full sm:w-4/5">
+          <DatePick></DatePick>
+        </div>
       </div>
-      <div className="flex flex-row justify-center items-center min-h-[10%] p-10 shrink-0" style={{ backgroundColor: 'var(--bg-section)' }}>
+      <div className="flex flex-row justify-center items-center py-6 px-5 shrink-0" style={{ backgroundColor: 'var(--bg-section)' }}>
         <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300 }}
+          id="search-button"
+          whileHover={{
+            scale: 1.05,
+            backgroundColor: "rgba(248, 113, 113, 1)", // bg-red-400
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+          }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.2 }}
           onClick={handleSearch}
-          className="text-lg font-bold/90 w-auto px-8 py-2 bg-red-400/90 text-white rounded-xl hover:bg-red-400 cursor-pointer mt-4 shadow-lg whitespace-nowrap"
+          className="text-lg font-bold w-full sm:w-auto px-8 py-3 bg-red-400/90 text-white rounded-xl shadow-lg whitespace-nowrap"
         >
           Wyszukaj trasy
         </motion.button>
@@ -287,7 +308,7 @@ export default function Main() {
 
       {showResults && (
         <div className="flex-1 overflow-hidden w-full relative animate-in slide-in-from-bottom-10 fade-in duration-500">
-          <TripList />
+          <TripList from={from} to={to} />
         </div>
       )}
 

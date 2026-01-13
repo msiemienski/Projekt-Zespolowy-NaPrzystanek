@@ -1,0 +1,100 @@
+{
+  "vectorTiles": {
+    "basePath": "/only/configure/if/required",
+    "layers": [
+      {
+        "name": "stops",
+        "type": "Stop",
+        "mapper": "Digitransit",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 600
+      },
+      {
+        "name": "areaStops",
+        "type": "AreaStop",
+        "mapper": "OTPRR",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 600
+      },
+      {
+        "name": "stations",
+        "type": "Station",
+        "mapper": "Digitransit",
+        "maxZoom": 20,
+        "minZoom": 12,
+        "cacheMaxSeconds": 600
+      },
+      {
+        "name": "citybikes",
+        "type": "VehicleRental",
+        "mapper": "Digitransit",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 60,
+        "expansionFactor": 0.25
+      },
+      {
+        "name": "rentalVehicles",
+        "type": "VehicleRentalVehicle",
+        "mapper": "DigitransitRealtime",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 60
+      },
+      {
+        "name": "rentalStations",
+        "type": "VehicleRentalStation",
+        "mapper": "Digitransit",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 600
+      },
+      {
+        "name": "realtimeRentalStations",
+        "type": "VehicleRentalStation",
+        "mapper": "DigitransitRealtime",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 60
+      },
+      {
+        "name": "realtimeStops",
+        "type": "Stop",
+        "mapper": "DigitransitRealtime",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 60
+      },
+      {
+        "name": "stadtnaviVehicleParking",
+        "type": "VehicleParking",
+        "mapper": "Stadtnavi",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 60,
+        "expansionFactor": 0.25
+      },
+      {
+        "name": "vehicleParking",
+        "type": "VehicleParking",
+        "mapper": "Digitransit",
+        "maxZoom": 20,
+        "minZoom": 14,
+        "cacheMaxSeconds": 600,
+        "expansionFactor": 0.25
+      },
+      {
+        "name": "vehicleParkingGroups",
+        "type": "VehicleParkingGroup",
+        "mapper": "Digitransit",
+        "maxZoom": 17,
+        "minZoom": 14,
+        "cacheMaxSeconds": 600,
+        "expansionFactor": 0.25
+      }
+    ] 
+  }
+
+}
