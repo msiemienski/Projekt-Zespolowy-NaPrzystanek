@@ -11,6 +11,8 @@ services:
       MONGO_INITDB_DATABASE: naprzystanek
     volumes:
       - ./mongo-data:/data/db
+      - ./backend/otp/ztm:/data/csv
+      - ./backend/mongodb_init.sh:/docker-entrypoint-initdb.d/init.sh
 
   backend:
     build:
@@ -26,5 +28,9 @@ services:
       MONGO_URI: "mongodb://mongo:27017/naprzystanek"
       JWT_SECRET: "zmien_to_na_silny_klucz"
       FRONTEND_ORIGIN: "http://localhost:3000"
+      OTP_BASE_URL: "http://host.docker.internal:8080"
     ports:
       - "4000:4000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/package.json:/app/package.json

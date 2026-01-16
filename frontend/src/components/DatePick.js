@@ -6,7 +6,7 @@ import pl from "date-fns/locale/pl";
 import "react-datepicker/dist/react-datepicker.css";
 registerLocale("pl", pl);
 
-export default function DatePick() {
+export default function DatePick({ onDateChange }) {
     const [today, setToday] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState(today)
     const isSameDay = (date1, date2) => {
@@ -17,7 +17,7 @@ export default function DatePick() {
         );
     }
     const [onceChanged, setOnceChanged] = useState(false);
-    const onDateChange = (date) => {
+    const onDateChangeInternal = (date) => {
         setSelectedDate(date);
 
         if (isSameDay(date, today)) {
@@ -25,13 +25,18 @@ export default function DatePick() {
         }
         else
             setOnceChanged(true);
+        
+        // Wywołaj callback z datą jeśli jest przekazany
+        if (onDateChange) {
+            onDateChange(date);
+        }
     }
     return (
         <div className="w-full">
             <DatePicker
 
                 selected={selectedDate}
-                onChange={(date) => onDateChange(date)}
+                onChange={(date) => onDateChangeInternal(date)}
                 dateFormat={onceChanged ? "d MMMM yyyy HH:mm" : "HH:mm"}
                 locale={pl}
                 showTimeInput
