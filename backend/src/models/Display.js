@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const DisplaySchema = new mongoose.Schema({
   displayCode: { type: Number, required: true, unique: true },
@@ -10,4 +10,4 @@ const DisplaySchema = new mongoose.Schema({
   lastUpdate: { type: String } // Optional: store when it was last updated
 }, { timestamps: true });
 
-module.exports = mongoose.model('Display', DisplaySchema);
+export const Display = mongoose.model("Display", DisplaySchema);

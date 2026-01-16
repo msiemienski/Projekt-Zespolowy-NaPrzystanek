@@ -1,11 +1,11 @@
-const express = require('express');
+import express from "express";
+import axios from "axios";
+import { Display } from "../models/Display.js";
+
 const router = express.Router();
-const axios = require('axios');
-const Display = require('../models/Display');
 
 const ZTM_DISPLAYS_URL = 'https://ckan.multimediagdansk.pl/dataset/c24aa637-3619-4dc2-a171-a23eec8f2172/resource/ee910ad8-8ffa-4e24-8ef9-d5a335b07ccb/download/displays.json';
 
-// Fetch displays from ZTM API and save to DB
 router.get('/fetch-displays', async (req, res) => {
   try {
     console.log('Fetching displays from ZTM API...');
@@ -48,4 +48,4 @@ router.get('/displays', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

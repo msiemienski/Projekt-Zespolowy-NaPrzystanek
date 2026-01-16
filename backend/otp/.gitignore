@@ -4,3 +4,6 @@ pomorskie-251130.osm.pbf
 graph.obj
 gtfs.zip
 ztm/*.txt
+*.py
+*.geojson
+*.csv

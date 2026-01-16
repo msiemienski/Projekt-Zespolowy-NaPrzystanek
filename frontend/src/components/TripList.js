@@ -3,7 +3,7 @@ import { ArrowLeft, Bus, Clock, Train } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-export default function TripList({ from, to }) {
+export default function TripList({ from, to, date }) {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,9 +18,10 @@ export default function TripList({ from, to }) {
     setError(null);
 
     // Wyszukiwanie tras przez OTP GraphQL API
-    const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
-    const timeStr = now.toTimeString().slice(0, 5);
+    // Używamy daty z DatePick lub domyślnie "teraz"
+    const searchDate = date || new Date();
+    const dateStr = searchDate.toISOString().split('T')[0];
+    const timeStr = searchDate.toTimeString().slice(0, 5);
     
     const query = `
       query {
@@ -197,7 +198,7 @@ export default function TripList({ from, to }) {
         setError(err.message || "Nie udało się znaleźć tras. Upewnij się, że OTP działa na localhost:8080");
         setLoading(false);
       });
-  }, [from, to]);
+  }, [from, to, date]);
     return (
         <div className="flex flex-col h-full w-full transition-all duration-500" style={{ backgroundColor: 'var(--bg-main)', borderTopColor: 'var(--border-secondary)', borderTopWidth: '1px' }}>
             {/* Summary (from/to) */}

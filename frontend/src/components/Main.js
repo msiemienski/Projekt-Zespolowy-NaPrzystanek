@@ -27,6 +27,9 @@ export default function Main() {
 
   // stan zalogowanego użytkownika
   const [currentUser, setCurrentUser] = useState(null);
+  
+  // stan wybranej daty
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const handleSelectChange = (option) => {
     setSelected(option);
@@ -258,6 +261,7 @@ export default function Main() {
           <div className="relative w-full sm:w-4/5">
             <AddressSearch
               onSelect={(loc) => setTo(loc)}
+              selectedDate={selectedDate}
               inputProps={{
                 className: `w-full h-10 font-bold text-base sm:text-medium border rounded-xl p-3 sm:p-5
                         transition-all duration-300 ease-in-out
@@ -286,7 +290,7 @@ export default function Main() {
       </div>
       <div className="flex flex-row justify-center items-center py-4 px-5 shrink-0" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
         <div className="w-full sm:w-4/5">
-          <DatePick></DatePick>
+          <DatePick onDateChange={setSelectedDate}></DatePick>
         </div>
       </div>
       <div className="flex flex-row justify-center items-center py-6 px-5 shrink-0" style={{ backgroundColor: 'var(--bg-section)' }}>
@@ -308,7 +312,7 @@ export default function Main() {
 
       {showResults && (
         <div className="flex-1 overflow-hidden w-full relative animate-in slide-in-from-bottom-10 fade-in duration-500">
-          <TripList from={from} to={to} />
+          <TripList from={from} to={to} date={selectedDate} />
         </div>
       )}
 
