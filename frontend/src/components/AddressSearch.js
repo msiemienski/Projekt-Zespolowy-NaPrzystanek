@@ -135,7 +135,11 @@ export default function AddressSearch({
 
                 <div className="flex-1">
                   <span className="block">{it.display_name}</span>
-                  {it.city && <span className="text-xs text-gray-500">{it.city}</span>}
+                  {(it.city || it.district) && (
+                    <span className="text-xs text-gray-500">
+                      {[it.city, it.district].filter(Boolean).join(", ")}
+                    </span>
+                  )}
                 </div>
               </li>
             );

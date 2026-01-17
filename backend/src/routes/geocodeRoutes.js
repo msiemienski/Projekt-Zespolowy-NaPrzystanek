@@ -60,6 +60,13 @@ const GDANSK_BBOX = {
     maxLat: 54.45 
 };
 
+function getDistrictsCollection() {
+    if (mongoose.connection.readyState !== 1) {
+        throw new Error('MongoDB nie jest połączone');
+    }
+    return mongoose.connection.db.collection('districts');
+}
+
 function getAddressesCollection() {
     if (mongoose.connection.readyState !== 1) {
         throw new Error('MongoDB nie jest połączone');
@@ -90,6 +97,33 @@ function isInGdanskArea(addr) {
     const city = (addr.city || '').toLowerCase();
     return city.includes('gdańsk') || city.includes('gdansk') || 
            city.includes('kolbudy') || city.includes('otomin');
+}
+
+async function getDistrictForPoint(lon, lat) {
+    try {
+        if (!lon || !lat || lon === 0 || lat === 0) {
+            return null;
+        }
+
+        const district = await getDistrictsCollection().findOne({
+            geometry: {
+                $geoIntersects: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [lon, lat]
+                    }
+                }
+            }
+        });
+
+        if (district) {
+            return district.short_name || district.name || null;
+        }
+        return null;
+    } catch (error) {
+        console.error('Błąd sprawdzania dzielnicy:', error);
+        return null;
+    }
 }
 
 router.get('/', async (req, res) => {
@@ -190,23 +224,44 @@ router.get('/', async (req, res) => {
             // Formatowanie wyników dla frontendu
             const results = [];
 
-            // Dodaj ulice jako typ 'street'
-            streets.forEach((street, idx) => {
+            // Dla ulic - pobierz pierwszy adres z ulicy, żeby sprawdzić dzielnicę
+            for (let idx = 0; idx < streets.length; idx++) {
+                const street = streets[idx];
+                // Pobierz pierwszy adres z tej ulicy, żeby sprawdzić dzielnicę
+                const firstAddress = await addresses.findOne({
+                    $and: [
+                        { street: street._id },
+                        geoFilter
+                    ]
+                });
+
+                let districtName = null;
+                if (firstAddress) {
+                    const location = firstAddress.location || {};
+                    const coords = location.coordinates || [];
+                    const lon = coords[0] || firstAddress.lon;
+                    const lat = coords[1] || firstAddress.lat;
+                    if (lon && lat) {
+                        districtName = await getDistrictForPoint(lon, lat);
+                    }
+                }
+
                 results.push({
                     display_name: street._id,
                     lat: 0, // ulice nie mają konkretnej lokalizacji
                     lon: 0,
                     type: 'street',
                     uniqueKey: `street-${street._id}-${idx}`,
-                    city: null
+                    city: null,
+                    district: districtName
                 });
-            });
+            }
 
             // Dodaj adresy jako typ 'address' (tylko te z obszaru Gdańska)
-            addressesResults.forEach((addr, idx) => {
-                // Podwójne sprawdzenie geograficzne (na wypadek gdyby zapytanie nie zadziałało)
+            for (let idx = 0; idx < addressesResults.length; idx++) {
+                const addr = addressesResults[idx];
                 if (!isInGdanskArea(addr)) {
-                    return; // Pomiń adresy poza obszarem
+                    continue; // Pomiń adresy poza obszarem
                 }
                 
                 const displayName = addr.housenumber 
@@ -215,21 +270,34 @@ router.get('/', async (req, res) => {
                 
                 const location = addr.location || {};
                 const coords = location.coordinates || [];
+                const lon = coords[0] || addr.lon || 0;
+                const lat = coords[1] || addr.lat || 0;
+
+                // Sprawdź do jakiej dzielnicy należy adres
+                const districtName = await getDistrictForPoint(lon, lat);
                 
                 results.push({
                     display_name: displayName,
-                    lat: coords[1] || addr.lat || 0,
-                    lon: coords[0] || addr.lon || 0,
+                    lat: lat,
+                    lon: lon,
                     type: 'address',
                     uniqueKey: `address-${addr.street}-${addr.housenumber}-${idx}`,
-                    city: addr.city || null
+                    city: addr.city || null,
+                    district: districtName
                 });
-            });
+            }
 
-            // Dodaj przystanki z OTP
-            otpStops.forEach((stop) => {
-                results.push(stop);
-            });
+            // Dodaj przystanki z OTP (ze sprawdzeniem dzielnicy)
+            for (const stop of otpStops) {
+                let districtName = null;
+                if (stop.lon && stop.lat) {
+                    districtName = await getDistrictForPoint(stop.lon, stop.lat);
+                }
+                results.push({
+                    ...stop,
+                    district: districtName
+                });
+            }
 
             // Sortowanie: najpierw przystanki, potem adresy, potem ulice
             results.sort((a, b) => {
@@ -246,8 +314,6 @@ router.get('/', async (req, res) => {
             return res.json(results.slice(0, limit));
         }
         
-        // Jeśli jest tylko 'prefix', zwróć tylko listę ulic (stary format) - tylko z obszaru Gdańska
-        // Wymuszamy filtrowanie po mieście, żeby wykluczyć Gdynię
         const geoFilter = {
             city: { $regex: '^(gdańsk|gdansk|kolbudy|otomin)$', $options: 'i' }
         };
@@ -281,7 +347,6 @@ router.get('/housenumbers', async (req, res) => {
         const addresses = getAddressesCollection();
         
         // Filtrowanie geograficzne dla obszaru Gdańska
-        // Wymuszamy filtrowanie po mieście, żeby wykluczyć Gdynię
         const geoFilter = {
             city: { $regex: '^(gdańsk|gdansk|kolbudy|otomin)$', $options: 'i' }
         };

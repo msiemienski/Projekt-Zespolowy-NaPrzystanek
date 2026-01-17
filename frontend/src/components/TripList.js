@@ -93,23 +93,36 @@ export default function TripList({ from, to, date }) {
             return date.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
           };
 
-          // Zbieranie linii z legów
-          const lines = [];
+          // Zbieranie linii z legów wraz z ich trybami
+          const linesMap = new Map(); // Map<shortName, mode>
           const modes = new Set();
           
           itinerary.legs.forEach((leg) => {
             if (leg.route?.shortName) {
-              lines.push(leg.route.shortName);
+              const shortName = leg.route.shortName;
+              const mode = leg.mode || "BUS";
+              // Zapamiętaj tryb dla tej linii (jeśli linia już istnieje, zachowaj pierwszy tryb)
+              if (!linesMap.has(shortName)) {
+                linesMap.set(shortName, mode);
+              }
             }
             if (leg.mode) {
               modes.add(leg.mode);
             }
           });
 
+          // Konwersja Map na tablicę obiektów {name, mode}
+          const lines = Array.from(linesMap.entries()).map(([name, mode]) => ({
+            name,
+            mode
+          }));
+
           // Określenie typu
           let type = "bus";
           if (modes.has("RAIL") || modes.has("SUBWAY")) {
             type = "train";
+          } else if (modes.has("TRAM")) {
+            type = "tram";
           } else if (modes.size > 1) {
             type = "mixed";
           }
@@ -119,7 +132,7 @@ export default function TripList({ from, to, date }) {
             departure: formatTime(itinerary.startTime),
             arrival: formatTime(itinerary.endTime),
             duration: durationStr,
-            lines: [...new Set(lines)], // Usuwamy duplikaty
+            lines: lines,
             type: type,
             price: "4.80 zł", // OTP nie zwraca ceny, można dodać później
           };
@@ -157,23 +170,36 @@ export default function TripList({ from, to, date }) {
                 return date.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
               };
 
-              // Zbieranie linii z legów
-              const lines = [];
+              // Zbieranie linii z legów wraz z ich trybami
+              const linesMap = new Map(); // Map<shortName, mode>
               const modes = new Set();
               
               itinerary.legs.forEach((leg) => {
                 if (leg.route?.shortName) {
-                  lines.push(leg.route.shortName);
+                  const shortName = leg.route.shortName;
+                  const mode = leg.mode || "BUS";
+                  // Zapamiętaj tryb dla tej linii (jeśli linia już istnieje, zachowaj pierwszy tryb)
+                  if (!linesMap.has(shortName)) {
+                    linesMap.set(shortName, mode);
+                  }
                 }
                 if (leg.mode) {
                   modes.add(leg.mode);
                 }
               });
 
+              // Konwersja Map na tablicę obiektów {name, mode}
+              const lines = Array.from(linesMap.entries()).map(([name, mode]) => ({
+                name,
+                mode
+              }));
+
               // Określenie typu
               let type = "bus";
               if (modes.has("RAIL") || modes.has("SUBWAY")) {
                 type = "train";
+              } else if (modes.has("TRAM")) {
+                type = "tram";
               } else if (modes.size > 1) {
                 type = "mixed";
               }
@@ -183,7 +209,7 @@ export default function TripList({ from, to, date }) {
                 departure: formatTime(itinerary.startTime),
                 arrival: formatTime(itinerary.endTime),
                 duration: durationStr,
-                lines: [...new Set(lines)], // Usuwamy duplikaty
+                lines: lines,
                 type: type,
                 price: "4.80 zł", // OTP nie zwraca ceny, można dodać później
               };
@@ -277,19 +303,37 @@ export default function TripList({ from, to, date }) {
                         </div>
 
                         <div className="flex flex-row items-center gap-2 mt-2 pt-3 transition-colors duration-500" style={{ borderTopColor: 'var(--border-secondary)', borderTopWidth: '1px' }}>
-                            {trip.lines.map((line, i) => (
-                                <span
-                                    key={i}
-                                    className="flex items-center justify-center px-2 py-1 rounded text-xs font-bold transition-colors duration-500"
-                                    style={line === "SKM"
-                                        ? { backgroundColor: 'rgba(234, 179, 8, 0.2)', color: '#ca8a04' }
-                                        : { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#dc2626' }
-                                    }
-                                >
-                                    {line === "SKM" ? <Train className="w-3 h-3 mr-1 transition-colors duration-500" /> : <Bus className="w-3 h-3 mr-1 transition-colors duration-500" />}
-                                    {line}
-                                </span>
-                            ))}
+                            {trip.lines.map((line, i) => {
+                                const lineName = typeof line === 'string' ? line : line.name;
+                                const lineMode = typeof line === 'object' ? line.mode : null;
+                                
+                                const isSKM = lineName === "SKM";
+                                
+                                let IconComponent = Bus;
+                                let bgColor = 'rgba(239, 68, 68, 0.2)';
+                                let textColor = '#dc2626';
+                                
+                                if (isSKM || lineMode === "RAIL" || lineMode === "SUBWAY") {
+                                    IconComponent = Train;
+                                    bgColor = 'rgba(234, 179, 8, 0.2)';
+                                    textColor = '#ca8a04';
+                                } else if (lineMode === "TRAM") {
+                                    IconComponent = Train;
+                                    bgColor = 'rgba(59, 130, 246, 0.2)';
+                                    textColor = '#2563eb';
+                                }
+                                
+                                return (
+                                    <span
+                                        key={i}
+                                        className="flex items-center justify-center px-2 py-1 rounded text-xs font-bold transition-colors duration-500"
+                                        style={{ backgroundColor: bgColor, color: textColor }}
+                                    >
+                                        <IconComponent className="w-3 h-3 mr-1 transition-colors duration-500" />
+                                        {lineName}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </motion.div>
                 ))}
