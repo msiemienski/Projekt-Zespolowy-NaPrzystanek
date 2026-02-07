@@ -11,10 +11,16 @@ Odpalasz po prostu jara wpisując:
 java -Xmx4G -jar otp-shaded-2.8.1.jar --build --serve ztm
 ```
 
+Zbudowanie grafu.obj:
+```bash
+java -Xmx4G -jar otp-shaded-2.8.1.jar --build --save ztm
+```
+
 Jak chce się załadować z istniejącego grafu.obj:
 ```bash
 java -Xmx4G -jar otp-shaded-2.8.1.jar --load --serve ztm
 ```
+
 
 
 I wtedy ładują się wszystkie przystanki + trasy tramwajow i autobusow z API OTP.

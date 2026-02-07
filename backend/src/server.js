@@ -6,6 +6,8 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import geocodeRoutes from "./routes/geocodeRoutes.js";
 import ztmRoutes from "./routes/ztm.js";
+import cron from "node-cron";
+import { updateGTFS } from "./utils/gtfsUpdater.js";
 
 dotenv.config();
 
@@ -48,6 +50,18 @@ async function start() {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
+
+  // Harmonogram aktualizacji GTFS każdego dnia o 3:00 rano
+  cron.schedule("0 3 * * *", async () => {
+    try {
+      await updateGTFS();
+    } catch (error) {
+      console.error("[GTFS] Planowana aktualizacja nie powiodła się:", error.message);
+    }
+  });
+
+  // Aktualizacja przy starcie serwera
+  updateGTFS().catch(err => console.error("[GTFS] Wstępna aktualizacja nie powiodła się:", err.message));
 }
 
 start().catch((error) => {
