@@ -13,6 +13,7 @@ import DatePick from "./DatePick";
 import AddressSearch from "./AddressSearch";
 import SettingsComp from "./SettingsComp";
 import LoginComp from "./LoginComp";
+import AdminPanelComp from "./AdminPanelComp"; // Import panelu administratora
 import TripList from "./TripList";
 
 const API_BASE =
@@ -24,6 +25,7 @@ export default function Main() {
   const [focusedInput, setFocusedInput] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false); // Stan widoczności panelu admina
 
   // stan zalogowanego użytkownika
   const [currentUser, setCurrentUser] = useState(null);
@@ -152,6 +154,19 @@ export default function Main() {
 
         {currentUser && (
           <div className="flex flex-col items-start gap-1 min-w-0 flex-shrink-0 z-10 pr-2" style={{ maxWidth: '40%' }}>
+            {currentUser.role === 'admin' && (
+              <button
+                onClick={() => setShowAdminPanel(true)}
+                className="px-2 py-1 mb-1 rounded-xl border text-xs font-bold transition whitespace-nowrap flex-shrink-0"
+                style={{
+                  borderColor: 'red',
+                  color: 'red',
+                  backgroundColor: 'rgba(255,0,0,0.1)'
+                }}
+              >
+                Panel Admina
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="px-2 py-1 rounded-xl border text-xs transition whitespace-nowrap flex-shrink-0"
@@ -325,6 +340,11 @@ export default function Main() {
         onClose={() => setShowSettings(false)}
         showSettings={showSettings}
         currentUser={currentUser} // Przekazujemy dane zalogowanego użytkownika
+      />
+
+      <AdminPanelComp
+        onClose={() => setShowAdminPanel(false)}
+        showAdminPanel={showAdminPanel}
       />
     </div>
   );

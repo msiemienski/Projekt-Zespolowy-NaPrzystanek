@@ -78,7 +78,8 @@ export async function register(req, res) {
     return res.status(201).json({
       id: user._id,
       email: user.email,
-      name: user.name
+      name: user.name,
+      role: user.role
     });
   } catch (error) {
     console.error("Błąd rejestracji:", error);
@@ -109,7 +110,8 @@ export async function login(req, res) {
     return res.status(200).json({
       id: user._id,
       email: user.email,
-      name: user.name
+      name: user.name,
+      role: user.role
     });
   } catch (error) {
     console.error("Błąd logowania:", error);
@@ -171,7 +173,7 @@ export async function me(req, res) {
       return res.status(401).json({ message: "Brak autoryzacji" });
     }
 
-    const user = await User.findById(userId).select("id email name");
+    const user = await User.findById(userId).select("id email name role");
     if (!user) {
       return res.status(404).json({ message: "Użytkownik nie istnieje" });
     }
@@ -242,7 +244,8 @@ export async function googleLogin(req, res) {
     return res.status(200).json({
       id: user._id,
       email: user.email,
-      name: user.name
+      name: user.name,
+      role: user.role
     });
   } catch (error) {
     console.error("Błąd logowania przez Google:", error);
