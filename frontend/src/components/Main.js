@@ -324,6 +324,7 @@ export default function Main() {
       <SettingsComp
         onClose={() => setShowSettings(false)}
         showSettings={showSettings}
+        currentUser={currentUser} // Przekazujemy dane zalogowanego użytkownika
       />
     </div>
   );

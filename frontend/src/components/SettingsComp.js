@@ -4,28 +4,37 @@ import { X, Moon, Sun, Palette } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useState, useEffect } from "react";
 
-const SettingsComp = ({ onClose, showSettings }) => {
+const SettingsComp = ({ onClose, showSettings, currentUser }) => {
+  // 1. Podstawowe ustawienia API i zamknięcia
   const handleCloseClick = (e) => {
     e.preventDefault();
     onClose();
   };
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+  // 2. Hooki dla motywu i prostych ustawień lokalnych
   const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [autoLocation, setAutoLocation] = useState(false);
 
-  // Wczytaj preferencje z localStorage
+  // 3. Stan formularza zmiany hasła (pola tekstowe, ładowanie, błędy)
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passLoading, setPassLoading] = useState(false);
+  const [passError, setPassError] = useState("");
+  const [passSuccess, setPassSuccess] = useState("");
+
+  // 4. Wczytywanie zapisanych ustawień przy starcie
   useEffect(() => {
     const savedNotifications = localStorage.getItem("notifications");
     const savedAutoLocation = localStorage.getItem("autoLocation");
-    if (savedNotifications !== null) {
-      setNotifications(savedNotifications === "true");
-    }
-    if (savedAutoLocation !== null) {
-      setAutoLocation(savedAutoLocation === "true");
-    }
+    if (savedNotifications !== null) setNotifications(savedNotifications === "true");
+    if (savedAutoLocation !== null) setAutoLocation(savedAutoLocation === "true");
   }, []);
 
+  // 5. Obsługa zmiany prostych ustawień
   const handleNotificationsChange = (value) => {
     setNotifications(value);
     localStorage.setItem("notifications", value.toString());
@@ -34,6 +43,47 @@ const SettingsComp = ({ onClose, showSettings }) => {
   const handleAutoLocationChange = (value) => {
     setAutoLocation(value);
     localStorage.setItem("autoLocation", value.toString());
+  };
+
+  // 6. Główna funkcja wysyłająca żądanie zmiany hasła
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPassError("");
+    setPassSuccess("");
+
+    // A. Walidacja: Czy hasła się zgadzają?
+    if (newPassword !== confirmPassword) {
+      setPassError("Nowe hasła nie są identyczne.");
+      return;
+    }
+
+    setPassLoading(true);
+    try {
+      // B. Wysłanie zapytania do Backendu
+      const res = await fetch(`${API_BASE}/api/auth/change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ważne dla obsługi ciasteczek (JWT)
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+
+      const data = await res.json();
+
+      // C. Obsługa wyniku
+      if (!res.ok) {
+        setPassError(data.message || "Nie udało się zmienić hasła.");
+      } else {
+        setPassSuccess("Hasło zostało zmienione pomyślnie!");
+        // Czyścimy pola po sukcesie
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      setPassError("Błąd połączenia z serwerem.");
+    } finally {
+      setPassLoading(false);
+    }
   };
 
   return (
@@ -57,21 +107,69 @@ const SettingsComp = ({ onClose, showSettings }) => {
               style={{ backgroundColor: 'var(--bg-main)' }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Nagłówek okna */}
               <div className="flex flex-row items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
                 <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Ustawienia</h2>
                 <button
                   onClick={handleCloseClick}
                   className="p-1 rounded-full transition"
                   style={{ color: 'var(--icon-primary)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-dropdown-hover)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  <X className="w-6 h-6" style={{ color: 'var(--icon-primary)' }} />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="flex flex-col p-4 gap-6">
-                {/* Motyw */}
+                
+                {/* SEKCJA ZMIANY HASŁA (tylko dla zalogowanych) */}
+                {currentUser && (
+                  <div className="flex flex-col p-4 rounded-xl gap-3" style={{ backgroundColor: 'var(--bg-section)' }}>
+                    <div className="flex flex-row items-center gap-3 mb-1">
+                       <span className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Bezpieczeństwo: Zmień hasło</span>
+                    </div>
+                    
+                    <div className="flex flex-col gap-3">
+                      <input
+                        type="password"
+                        placeholder="Obecne hasło"
+                        className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                      />
+                      <input
+                        type="password"
+                        placeholder="Nowe hasło"
+                        className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
+                      <input
+                        type="password"
+                        placeholder="Powtórz nowe hasło"
+                        className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                      
+                      {/* Komunikaty o błędach i sukcesie */}
+                      {passError && <p className="text-sm text-red-500 font-medium">{passError}</p>}
+                      {passSuccess && <p className="text-sm text-green-500 font-medium">{passSuccess}</p>}
+
+                      <button
+                        onClick={handleChangePassword}
+                        disabled={passLoading}
+                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition duration-200 disabled:opacity-50"
+                      >
+                        {passLoading ? "Przetwarzanie..." : "Zatwierdź nowe hasło"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sekcja: Wybór motywu */}
                 <div className="flex flex-row items-center justify-between p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-section)' }}>
                   <div className="flex flex-row items-center gap-3">
                     <Palette className="w-5 h-5" style={{ color: 'var(--icon-primary)' }} />

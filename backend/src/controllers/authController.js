@@ -117,6 +117,53 @@ export async function login(req, res) {
   }
 }
 
+// Funkcja obsługująca zmianę hasła przez zalogowanego użytkownika
+export async function changePassword(req, res) {
+  try {
+    // 1. Pobieramy dane z żądania (body) oraz ID użytkownika z tokena (req.userId)
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.userId;
+
+    // 2. Sprawdzamy, czy przesłano oba hasła
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Musisz podać obecne i nowe hasło." });
+    }
+
+    // 3. Szukamy użytkownika w bazie danych po jego ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Nie znaleziono użytkownika." });
+    }
+
+    // 4. Sprawdzamy, czy podane obecne hasło zgadza się z tym zapisanym w bazie (używamy bcrypt)
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Podane obecne hasło jest błędne." });
+    }
+
+    // 5. Walidujemy nowe hasło (musi spełniać wymogi: min. 8 znaków, duża litera itp.)
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
+    }
+
+    // 6. Generujemy nowe "solenie" i hashujemy nowe hasło
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    // 7. Aktualizujemy hash w obiekcie użytkownika i zapisujemy w bazie
+    user.passwordHash = newHash;
+    await user.save();
+
+    // 8. Zwracamy odpowiedź o sukcesie
+    return res.status(200).json({ message: "Hasło zostało pomyślnie zmienione." });
+
+  } catch (error) {
+    console.error("Błąd podczas zmiany hasła:", error);
+    return res.status(500).json({ message: "Wystąpił błąd serwera podczas zmiany hasła." });
+  }
+}
+
 export async function me(req, res) {
   try {
     const userId = req.userId;
