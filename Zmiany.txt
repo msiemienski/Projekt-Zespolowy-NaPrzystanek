@@ -1,14 +1,3 @@
-Poniżej przygotowałem spójną, czytelną dokumentację wszystkich zmian i funkcjonalności, które już zostały wdrożone w projekcie.
-Dokumentacja jest gotowa do:
-
-umieszczenia w repozytorium jako docs/authentication.md,
-
-przekazania zespołowi,
-
-wykorzystania podczas dalszej implementacji.
-
-Jeśli chcesz, mogę przygotować również wersję PDF, Markdown, Wiki lub poszerzoną o diagramy.
-
 Dokumentacja: System logowania i rejestracji użytkowników
 
 Projekt: NaPrzystanek – MERN + Next.js
@@ -266,22 +255,3 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=...
 ✔ Hashowanie haseł w bazie
 ✔ Informacja o zalogowanym użytkowniku (imię / email)
 
-7. Co możemy zrobić w kolejnych etapach
-
-Jeśli chcesz, mogę przygotować:
-
-A. System ról (Admin / User)
-
-dostęp do panelu admina,
-
-zarządzanie przystankami, rozkładami, użytkownikami.
-
-B. Reset hasła przez email (Magic Link)
-
-obsługa tokenów resetu,
-
-integracja z SMTP / Gmail API.
-
-C. Edycja profilu (zmiana hasła, nazwy)
-D. Docker Compose – uruchamianie całego projektu jednym poleceniem
-E. Wprowadzenie TypeScript lub Prisma (jeśli planujecie w przyszłości)
