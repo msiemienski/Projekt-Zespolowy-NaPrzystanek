@@ -15,7 +15,6 @@ import SettingsComp from "./SettingsComp";
 import LoginComp from "./LoginComp";
 import AdminPanelComp from "./AdminPanelComp"; // Import panelu administratora
 import TripList from "./TripList";
-import TripDetails from "./TripDetails";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -349,12 +348,6 @@ export default function Main({
             date={selectedDate}
             onTripSelect={setSelectedTrip}
           />
-          {selectedTrip && (
-            <TripDetails
-              trip={selectedTrip}
-              onClose={() => setSelectedTrip(null)}
-            />
-          )}
         </div>
       )}
 
