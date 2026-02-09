@@ -15,6 +15,7 @@ import SettingsComp from "./SettingsComp";
 import LoginComp from "./LoginComp";
 import AdminPanelComp from "./AdminPanelComp"; // Import panelu administratora
 import TripList from "./TripList";
+import TripDetails from "./TripDetails";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -24,7 +25,9 @@ export default function Main({
   setStartLocation,
   endLocation,
   setEndLocation,
-  setActiveField
+  setActiveField,
+  selectedTrip,
+  setSelectedTrip
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("Gdańsk");
@@ -261,11 +264,13 @@ export default function Main({
                 },
                 placeholder: 'Skąd chcesz jechać?',
                 onFocus: (e) => {
+                  console.log('🎯 START field focused');
                   e.target.style.borderColor = '#60a5fa';
                   setFocusedInput(1);
                   setActiveField('start');
                 },
                 onBlur: (e) => {
+                  console.log('⚠️ START field blurred (activeField should stay active)');
                   e.target.style.borderColor = 'var(--border-primary)';
                   setFocusedInput(null);
                 }
@@ -299,11 +304,13 @@ export default function Main({
                 },
                 placeholder: 'Dokąd chcesz jechać?',
                 onFocus: (e) => {
+                  console.log('🎯 END field focused');
                   e.target.style.borderColor = '#60a5fa';
                   setFocusedInput(2);
                   setActiveField('end');
                 },
                 onBlur: (e) => {
+                  console.log('⚠️ END field blurred (activeField should stay active)');
                   e.target.style.borderColor = 'var(--border-primary)';
                   setFocusedInput(null);
                 }
@@ -336,7 +343,18 @@ export default function Main({
 
       {showResults && (
         <div className="flex-1 overflow-hidden w-full relative animate-in slide-in-from-bottom-10 fade-in duration-500">
-          <TripList from={startLocation} to={endLocation} date={selectedDate} />
+          <TripList
+            from={startLocation}
+            to={endLocation}
+            date={selectedDate}
+            onTripSelect={setSelectedTrip}
+          />
+          {selectedTrip && (
+            <TripDetails
+              trip={selectedTrip}
+              onClose={() => setSelectedTrip(null)}
+            />
+          )}
         </div>
       )}
 

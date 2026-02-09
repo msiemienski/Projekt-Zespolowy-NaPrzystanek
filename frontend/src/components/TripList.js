@@ -3,7 +3,7 @@ import { ArrowLeft, Bus, Clock, Train } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-export default function TripList({ from, to, date }) {
+export default function TripList({ from, to, date, onTripSelect }) {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,6 +38,10 @@ export default function TripList({ from, to, date }) {
             endTime
             legs {
               mode
+              distance
+              legGeometry {
+                points
+              }
               route {
                 shortName
                 longName
@@ -123,15 +127,31 @@ export default function TripList({ from, to, date }) {
             type = "mixed";
           }
 
+          // Determine if this is a walking-only trip
+          const isWalkOnly = itinerary.legs.every(leg => leg.mode === 'WALK');
+
           return {
             id: idx + 1,
             departure: formatTime(itinerary.startTime),
             arrival: formatTime(itinerary.endTime),
             duration: durationStr,
+            durationSeconds: itinerary.duration, // Keep raw duration for sorting
             lines: lines,
-            type: type,
+            type: isWalkOnly ? 'walk' : type,
             price: "4.80 zł", // OTP nie zwraca ceny, można dodać później
+            rawItinerary: itinerary, // Store for route visualization
+            isWalkOnly: isWalkOnly,
           };
+        });
+
+        // Sort trips: transit first, then by duration
+        formattedTrips.sort((a, b) => {
+          // Walking trips go last
+          if (a.isWalkOnly && !b.isWalkOnly) return 1;
+          if (!a.isWalkOnly && b.isWalkOnly) return -1;
+
+          // Otherwise sort by duration
+          return a.durationSeconds - b.durationSeconds;
         });
 
         setTrips(formattedTrips);
@@ -190,6 +210,7 @@ export default function TripList({ from, to, date }) {
               borderWidth: '1px',
               boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
             }}
+            onClick={() => onTripSelect?.(trip)}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
             }}

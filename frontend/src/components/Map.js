@@ -1,12 +1,13 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Tooltip, Popup, ZoomControl, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Tooltip, Popup, ZoomControl, useMapEvents, Polyline } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import { useState, useEffect } from "react";
+import polyline from "@mapbox/polyline";
 const tramIcon = L.icon({
   iconUrl: "/icons/tram-stop.png",
   iconSize: [25, 25],
@@ -20,25 +21,49 @@ const busIcon = L.icon({
   iconAnchor: [12, 12],
   popupAnchor: [0, -12],
 });
+
 const TramBusIcon = L.icon({
   iconUrl: "/icons/tram-bus-stop.png",
   iconSize: [35, 35],
   iconAnchor: [12, 12],
   popupAnchor: [0, -12],
 });
+
+// Custom markers for start and end locations
+const startIcon = L.icon({
+  iconUrl: "/icons/start-marker.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40], // anchor at bottom center
+  popupAnchor: [0, -40],
+});
+
+const endIcon = L.icon({
+  iconUrl: "/icons/end-marker.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40], // anchor at bottom center
+  popupAnchor: [0, -40],
+});
 // Map click handler component
 function MapEvents({ onMapClick }) {
   useMapEvents({
     click: async (e) => {
       const { lat, lng } = e.latlng;
+      console.log("🗺️ Map clicked at:", { lat, lng });
+
+      if (!onMapClick) {
+        console.warn("⚠️ onMapClick handler is not defined!");
+        return;
+      }
+
       try {
+        console.log("🔍 Fetching nearest location from OTP...");
         const response = await fetch("http://localhost:8080/otp/gtfs/v1", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: `
               query ($lat: Float!, $lon: Float!) {
-                nearest(lat: $lat, lon: $lon, maxDistance: 500, filterByPlaceTypes: [ADDRESS, STREET]) {
+                nearest(lat: $lat, lon: $lon, maxDistance: 500, filterByPlaceTypes: [STOP, ADDRESS, STREET]) {
                   edges {
                     node {
                       place {
@@ -56,16 +81,33 @@ function MapEvents({ onMapClick }) {
           }),
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const json = await response.json();
+        console.log("📡 OTP Response:", json);
+
         const edges = json.data?.nearest?.edges;
         let bestMatch = null;
 
         if (edges && edges.length > 0) {
           // Sort by distance and pick the closest
           bestMatch = edges.sort((a, b) => a.node.distance - b.node.distance)[0].node.place;
+          console.log("✅ Found closest location:", bestMatch);
+        } else {
+          console.warn("⚠️ No nearby locations found within 500m");
+          // Still call onMapClick with the exact clicked coordinates
+          onMapClick({
+            label: `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+            lat,
+            lon: lng,
+          });
+          return;
         }
 
         if (bestMatch) {
+          console.log("📍 Calling onMapClick with:", bestMatch);
           onMapClick({
             label: bestMatch.name,
             lat: bestMatch.lat,
@@ -73,14 +115,37 @@ function MapEvents({ onMapClick }) {
           });
         }
       } catch (error) {
-        console.error("Error fetching address:", error);
+        console.error("❌ Error fetching address:", error);
+        // Fallback: use clicked coordinates
+        onMapClick({
+          label: `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+          lat,
+          lon: lng,
+        });
       }
     },
   });
   return null;
 }
 
-export default function Map({ onMapClick, startLocation, endLocation }) {
+// Helper function to get color for each transit mode
+function getModeColor(mode) {
+  switch (mode) {
+    case 'WALK':
+      return '#9ca3af'; // gray
+    case 'BUS':
+      return '#ef4444'; // red
+    case 'TRAM':
+      return '#3b82f6'; // blue
+    case 'RAIL':
+    case 'SUBWAY':
+      return '#eab308'; // yellow/gold
+    default:
+      return '#6b7280'; // default gray
+  }
+}
+
+export default function Map({ onMapClick, startLocation, endLocation, selectedTrip }) {
   const [stops, setStops] = useState([]);
 
   useEffect(() => {
@@ -123,16 +188,39 @@ export default function Map({ onMapClick, startLocation, endLocation }) {
       {onMapClick && <MapEvents onMapClick={onMapClick} />}
 
       {startLocation && (
-        <Marker position={[startLocation.lat, startLocation.lon]}>
+        <Marker position={[startLocation.lat, startLocation.lon]} icon={startIcon}>
           <Popup>Start: {startLocation.label}</Popup>
         </Marker>
       )}
 
       {endLocation && (
-        <Marker position={[endLocation.lat, endLocation.lon]}>
+        <Marker position={[endLocation.lat, endLocation.lon]} icon={endIcon}>
           <Popup>Koniec: {endLocation.label}</Popup>
         </Marker>
       )}
+
+      {/* Render selected trip route */}
+      {selectedTrip?.rawItinerary?.legs?.map((leg, idx) => {
+        if (!leg.legGeometry?.points) return null;
+
+        try {
+          const coordinates = polyline.decode(leg.legGeometry.points);
+          const color = getModeColor(leg.mode);
+
+          return (
+            <Polyline
+              key={`leg-${idx}`}
+              positions={coordinates}
+              color={color}
+              weight={5}
+              opacity={0.7}
+            />
+          );
+        } catch (error) {
+          console.error(`Error decoding polyline for leg ${idx}:`, error);
+          return null;
+        }
+      })}
 
       <MarkerClusterGroup>
         {stops.map((stop) => {

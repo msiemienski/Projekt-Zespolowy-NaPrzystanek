@@ -15,14 +15,22 @@ const Map = dynamic(() => import("@/components/Map"), {
 export default function Home() {
   const [startLocation, setStartLocation] = useState(null);
   const [endLocation, setEndLocation] = useState(null);
+  const [selectedTrip, setSelectedTrip] = useState(null);
 
   const [activeField, setActiveField] = useState(null);
 
   const handleMapClick = (location) => {
+    console.log("🎯 handleMapClick called with location:", location);
+    console.log("📌 Current activeField:", activeField);
+
     if (activeField === 'start') {
+      console.log("✅ Setting START location");
       setStartLocation(location);
     } else if (activeField === 'end') {
+      console.log("✅ Setting END location");
       setEndLocation(location);
+    } else {
+      console.warn("⚠️ No active field - map click ignored");
     }
     // If no field is active, do nothing (prevent accidental inputs)
   };
@@ -35,6 +43,7 @@ export default function Home() {
           onMapClick={handleMapClick}
           startLocation={startLocation}
           endLocation={endLocation}
+          selectedTrip={selectedTrip}
         />
       </div>
       {/* główna zawartość */}
@@ -46,6 +55,8 @@ export default function Home() {
             endLocation={endLocation}
             setEndLocation={setEndLocation}
             setActiveField={setActiveField}
+            selectedTrip={selectedTrip}
+            setSelectedTrip={setSelectedTrip}
           />
         </div>
       </div>
