@@ -1,0 +1,8 @@
+FROM mongo:7
+
+COPY mongodb_init.sh /docker-entrypoint-initdb.d/init.sh
+
+# Fix line endings (convert CRLF to LF) for Windows compatibility
+# and ensure the script is executable
+RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/init.sh && \
+    chmod +x /docker-entrypoint-initdb.d/init.sh

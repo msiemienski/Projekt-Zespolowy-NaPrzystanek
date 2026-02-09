@@ -60,8 +60,7 @@ async function start() {
     }
   });
 
-  // Aktualizacja przy starcie serwera
-  updateGTFS().catch(err => console.error("[GTFS] Wstępna aktualizacja nie powiodła się:", err.message));
+
 }
 
 start().catch((error) => {

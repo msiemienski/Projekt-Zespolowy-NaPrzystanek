@@ -1,26 +1,44 @@
 #!/bin/bash
 
-echo "Importuję adresy z CSV do MongoDB..."
-mongoimport \
-  --host mongo \
-  --db naprzystanek \
-  --collection addresses \
-  --type csv \
-  --headerline \
-  --file /data/csv/pomorskie-addresses.csv
-echo "Import adresów zakończony"
+# Folder where CSV/JSON files are mounted
+DATA_DIR="/data/csv"
 
-echo "Importuję dzielnice z GeoJSON do MongoDB..."
-mongoimport --host mongo \
-  --db naprzystanek \
-  --collection districts \
-  --file /data/csv/gdansk-dzielnice-multipolygon-array.json \
-  --jsonArray
-echo "Import dzielnic zakończony"
+echo "Waiting for MongoDB to start..."
+# No need to wait explicitly, this script is run by the entrypoint which handles db startup
 
-echo "Tworzenie indeksów..."
-mongosh --host mongo naprzystanek --eval '
-  // Adresy
+ADDRESSES_FILE="$DATA_DIR/pomorskie-addresses.csv"
+DISTRICTS_FILE="$DATA_DIR/gdansk-districts.json"
+
+if [ -f "$ADDRESSES_FILE" ]; then
+  echo "Importing addresses from CSV to MongoDB..."
+  mongoimport \
+    --db naprzystanek \
+    --collection addresses \
+    --type csv \
+    --headerline \
+    --file "$ADDRESSES_FILE"
+  echo "Address import finished."
+else
+  echo "Warning: Addresses file not found at $ADDRESSES_FILE"
+fi
+
+if [ -f "$DISTRICTS_FILE" ]; then
+  echo "Importing districts from GeoJSON to MongoDB..."
+  # Note: The file gdansk-districts.json is a JSON array of Features, so --jsonArray is correct
+  mongoimport \
+    --db naprzystanek \
+    --collection districts \
+    --file "$DISTRICTS_FILE" \
+    --jsonArray
+  echo "District import finished."
+else
+  echo "Warning: Districts file not found at $DISTRICTS_FILE"
+fi
+
+echo "Creating indexes..."
+mongosh naprzystanek --eval '
+  // Addresses
+  print("Processing addresses...");
   db.addresses.updateMany(
     {},
     [
@@ -42,16 +60,19 @@ mongosh --host mongo naprzystanek --eval '
   db.addresses.createIndex({ city: 1 });
   db.addresses.createIndex({ street: "text" });
 
-  // Dzielnice
+  // Districts
+  print("Processing districts...");
+  // gdansk-districts.json usually has "properties.name", let"s lift it to top level
   db.districts.updateMany(
     {},
     [{ $set: { name: "$properties.name" } }]
   );
   db.districts.createIndex({ geometry: "2dsphere" });
   db.districts.createIndex({ name: 1 });
-  db.districts.createIndex({ miejscowosc: 1 });
+  // Some datasets use "miejscowosc" or similar in properties, check if needed
+  // db.districts.createIndex({ miejscowosc: 1 });
 
-  print("Indeksy utworzone");
+  print("Indexes created successfully.");
 '
 
-echo "Inicjalizacja zakończona!"
+echo "Initialization complete!"

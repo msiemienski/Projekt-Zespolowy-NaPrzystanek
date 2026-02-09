@@ -41,3 +41,5 @@ backend/otp/*.jar
 backend/otp/**/*.obj
 backend/otp/**/*.pbf
 backend/otp/**/*.zip
+
+plan.txt
