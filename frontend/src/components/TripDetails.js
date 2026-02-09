@@ -86,6 +86,11 @@ export default function TripDetails({ trip, onClose }) {
                         <div className="font-bold text-xs px-2 py-1 rounded" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-section)' }}>
                             {trip.price}
                         </div>
+                        {trip.basePrice > 0 && trip.price !== `${trip.basePrice.toFixed(2)} zł` && (
+                            <div className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-medium">
+                                Zastosowano ulgę
+                            </div>
+                        )}
                     </div>
                 </div>
                 <button

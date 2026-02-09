@@ -109,7 +109,8 @@ export default function AddressSearch({
 
       {items.length > 0 && (
         <ul
-          className="absolute z-20 left-0 right-0 mt-1 bg-white border rounded shadow max-h-56 overflow-auto"
+          className="absolute z-20 left-0 right-0 mt-1 border rounded shadow max-h-56 overflow-auto transition-colors duration-300"
+          style={{ backgroundColor: 'var(--bg-main)', borderColor: 'var(--border-secondary)' }}
           onMouseDown={(e) => e.preventDefault()}
         >
           {items.map((it) => {
@@ -120,7 +121,10 @@ export default function AddressSearch({
             return (
               <li
                 key={it.uniqueKey}
-                className="p-2 hover:bg-slate-100 cursor-pointer text-sm flex items-center gap-2"
+                className="p-2 cursor-pointer text-sm flex items-center gap-2 transition-colors duration-200"
+                style={{ color: 'var(--text-primary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-section)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   isSelectingRef.current = true;
@@ -143,10 +147,10 @@ export default function AddressSearch({
                 {isStreet && <MapPin className="w-4 h-4 text-orange-600 flex-shrink-0" />}
                 {!isStop && !isAddress && !isStreet && <MapPin className="w-4 h-4 text-gray-600 flex-shrink-0" />}
 
-                <div className="flex-1">
-                  <span className="block">{it.display_name}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="block truncate font-medium">{it.display_name}</span>
                   {(it.city || it.district) && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs opacity-60 block truncate">
                       {[it.city, it.district].filter(Boolean).join(", ")}
                     </span>
                   )}

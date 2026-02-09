@@ -5,7 +5,8 @@ import {
   register,
   logout,
   googleLogin,
-  changePassword // Dodajemy funkcję zmiany hasła do importu
+  changePassword, // Dodajemy funkcję zmiany hasła do importu
+  updatePreferences
 } from "../controllers/authController.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 
@@ -19,6 +20,9 @@ router.post("/google", googleLogin);
 
 // NOWA TRASA: Zmiana hasła (wymaga bycia zalogowanym - requireAuth)
 router.post("/change-password", requireAuth, changePassword);
+
+// TRASA: Aktualizacja preferencji (ulgi biletowe)
+router.patch("/preferences", requireAuth, updatePreferences);
 
 // Trasa do pobierania danych o aktualnym użytkowniku
 router.get("/me", requireAuth, me);

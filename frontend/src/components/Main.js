@@ -347,6 +347,7 @@ export default function Main({
             to={endLocation}
             date={selectedDate}
             onTripSelect={setSelectedTrip}
+            currentUser={currentUser}
           />
         </div>
       )}
@@ -360,6 +361,7 @@ export default function Main({
         onClose={() => setShowSettings(false)}
         showSettings={showSettings}
         currentUser={currentUser} // Przekazujemy dane zalogowanego użytkownika
+        setCurrentUser={setCurrentUser} // Przekazujemy funkcję do aktualizacji stanu
       />
 
       <AdminPanelComp

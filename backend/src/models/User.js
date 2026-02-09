@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: "user",
       enum: ["user", "admin"]
+    },
+    discountType: {
+      type: String,
+      default: "normal",
+      enum: ["normal", "reduced", "senior_student"]
     }
   },
   {

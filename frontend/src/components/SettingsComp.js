@@ -1,10 +1,10 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Moon, Sun, Palette } from "lucide-react";
+import { X, Moon, Sun, Palette, Ticket } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useState, useEffect } from "react";
 
-const SettingsComp = ({ onClose, showSettings, currentUser }) => {
+const SettingsComp = ({ onClose, showSettings, currentUser, setCurrentUser }) => {
   // 1. Podstawowe ustawienia API i zamknięcia
   const handleCloseClick = (e) => {
     e.preventDefault();
@@ -26,13 +26,23 @@ const SettingsComp = ({ onClose, showSettings, currentUser }) => {
   const [passError, setPassError] = useState("");
   const [passSuccess, setPassSuccess] = useState("");
 
+  // 3a. Stan dla preferencji ulgi
+  const [discountType, setDiscountType] = useState("normal");
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState("");
+
   // 4. Wczytywanie zapisanych ustawień przy starcie
   useEffect(() => {
     const savedNotifications = localStorage.getItem("notifications");
     const savedAutoLocation = localStorage.getItem("autoLocation");
     if (savedNotifications !== null) setNotifications(savedNotifications === "true");
     if (savedAutoLocation !== null) setAutoLocation(savedAutoLocation === "true");
-  }, []);
+
+    // Inicjalizacja ulgi biletowej z danych użytkownika
+    if (currentUser?.discountType) {
+      setDiscountType(currentUser.discountType);
+    }
+  }, [currentUser]);
 
   // 5. Obsługa zmiany prostych ustawień
   const handleNotificationsChange = (value) => {
@@ -86,6 +96,48 @@ const SettingsComp = ({ onClose, showSettings, currentUser }) => {
     }
   };
 
+  // 7. Obsługa zmiany preferencji ulgi
+  const handleDiscountChange = async (newDiscount) => {
+    setDiscountType(newDiscount);
+    setDiscountError("");
+    setDiscountLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/preferences`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ discountType: newDiscount })
+      });
+
+      if (!res.ok) {
+        let errorMessage = "Błąd podczas zapisywania preferencji.";
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          errorMessage = data.message || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const updatedUser = await res.json();
+        if (setCurrentUser) {
+          setCurrentUser(updatedUser);
+        }
+      }
+    } catch (err) {
+      setDiscountError(err.message);
+      // Powrót do poprzedniej wartości w razie błędu (zabezpieczenie)
+      if (currentUser?.discountType) {
+        setDiscountType(currentUser.discountType);
+      }
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       {showSettings && (
@@ -120,53 +172,114 @@ const SettingsComp = ({ onClose, showSettings, currentUser }) => {
               </div>
 
               <div className="flex flex-col p-4 gap-6">
-                
-                {/* SEKCJA ZMIANY HASŁA (tylko dla zalogowanych) */}
-                {currentUser && (
-                  <div className="flex flex-col p-4 rounded-xl gap-3" style={{ backgroundColor: 'var(--bg-section)' }}>
-                    <div className="flex flex-row items-center gap-3 mb-1">
-                       <span className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Bezpieczeństwo: Zmień hasło</span>
-                    </div>
-                    
-                    <div className="flex flex-col gap-3">
-                      <input
-                        type="password"
-                        placeholder="Obecne hasło"
-                        className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                      />
-                      <input
-                        type="password"
-                        placeholder="Nowe hasło"
-                        className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                      />
-                      <input
-                        type="password"
-                        placeholder="Powtórz nowe hasło"
-                        className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                      />
-                      
-                      {/* Komunikaty o błędach i sukcesie */}
-                      {passError && <p className="text-sm text-red-500 font-medium">{passError}</p>}
-                      {passSuccess && <p className="text-sm text-green-500 font-medium">{passSuccess}</p>}
 
-                      <button
-                        onClick={handleChangePassword}
-                        disabled={passLoading}
-                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition duration-200 disabled:opacity-50"
-                      >
-                        {passLoading ? "Przetwarzanie..." : "Zatwierdź nowe hasło"}
-                      </button>
+                {currentUser && (
+                  <>
+                    <div className="flex flex-col p-4 rounded-xl gap-3" style={{ backgroundColor: 'var(--bg-section)' }}>
+                      <div className="flex flex-row items-center gap-3 mb-1">
+                        <span className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Bezpieczeństwo: Zmień hasło</span>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <input
+                          type="password"
+                          placeholder="Obecne hasło"
+                          className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                        <input
+                          type="password"
+                          placeholder="Nowe hasło"
+                          className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <input
+                          type="password"
+                          placeholder="Powtórz nowe hasło"
+                          className="w-full h-10 border rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+
+                        {/* Komunikaty o błędach i sukcesie */}
+                        {passError && <p className="text-sm text-red-500 font-medium">{passError}</p>}
+                        {passSuccess && <p className="text-sm text-green-500 font-medium">{passSuccess}</p>}
+
+                        <button
+                          onClick={handleChangePassword}
+                          disabled={passLoading}
+                          className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition duration-200 disabled:opacity-50"
+                        >
+                          {passLoading ? "Przetwarzanie..." : "Zatwierdź nowe hasło"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+
+                    {/* SEKCJA ULGI BILETOWE */}
+                    <div className="flex flex-col p-4 rounded-xl gap-3" style={{ backgroundColor: 'var(--bg-section)' }}>
+                      <div className="flex flex-row items-center gap-3 mb-1">
+                        <Ticket className="w-5 h-5" style={{ color: 'var(--icon-primary)' }} />
+                        <span className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Rodzaj ulgi biletowej</span>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                          <input
+                            type="radio"
+                            name="discount"
+                            value="normal"
+                            checked={discountType === "normal"}
+                            onChange={() => handleDiscountChange("normal")}
+                            disabled={discountLoading}
+                            className="w-4 h-4 text-blue-600"
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Normalny (100%)</span>
+                            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Pełna cena biletu (4.80 zł / 7.20 zł)</span>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                          <input
+                            type="radio"
+                            name="discount"
+                            value="reduced"
+                            checked={discountType === "reduced"}
+                            onChange={() => handleDiscountChange("reduced")}
+                            disabled={discountLoading}
+                            className="w-4 h-4 text-blue-600"
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Ulgowy (50%)</span>
+                            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Uczniowie, niepełnosprawni (2.40 zł / 3.60 zł)</span>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                          <input
+                            type="radio"
+                            name="discount"
+                            value="senior_student"
+                            checked={discountType === "senior_student"}
+                            onChange={() => handleDiscountChange("senior_student")}
+                            disabled={discountLoading}
+                            className="w-4 h-4 text-blue-600"
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Student / Senior (37%)</span>
+                            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Studenci do 26 r.ż., seniorzy (1.78 zł / 2.67 zł)</span>
+                          </div>
+                        </label>
+
+                        {discountError && <p className="text-xs text-red-500 mt-1">{discountError}</p>}
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {/* Sekcja: Wybór motywu */}
@@ -185,9 +298,8 @@ const SettingsComp = ({ onClose, showSettings, currentUser }) => {
                     className="relative w-14 h-8 bg-blue-600 dark:bg-blue-500 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     <span
-                      className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                        theme === "dark" ? "translate-x-6" : "translate-x-0"
-                      }`}
+                      className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${theme === "dark" ? "translate-x-6" : "translate-x-0"
+                        }`}
                     >
                       {theme === "dark" ? (
                         <Moon className="w-4 h-4 text-blue-600 m-1" />

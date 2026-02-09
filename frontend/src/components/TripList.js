@@ -3,7 +3,50 @@ import { ArrowLeft, Bus, Clock, Train } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-export default function TripList({ from, to, date, onTripSelect }) {
+// Helper function to calculate trip price based on complexity
+const calculateTripPrice = (itinerary) => {
+  const legs = itinerary.legs || [];
+
+  // Walking only = free
+  const isWalkOnly = legs.every(leg => leg.mode === 'WALK');
+  if (isWalkOnly) return 0;
+
+  // Calculate trip duration in minutes
+  const durationMinutes = itinerary.duration / 60;
+
+  // Get number of transit legs (non-walking)
+  const transitLegs = legs.filter(leg => leg.mode !== 'WALK');
+
+  // Pricing logic:
+  // - Simple trips (1-2 transit legs, <30 min): 4.80 zł (single ticket)
+  // - Complex trips (3+ legs OR >30 min): 7.20 zł (60-min ticket)
+
+  if (transitLegs.length <= 2 && durationMinutes < 30) {
+    return 4.80; // Bilet jednorazowy
+  } else {
+    return 7.20; // Bilet czasowy 60 min
+  }
+};
+
+// Helper function to get discount multiplier
+const getDiscountMultiplier = (currentUser) => {
+  if (!currentUser?.discountType) return 1.0;
+
+  switch (currentUser.discountType) {
+    case 'reduced': return 0.50;
+    case 'senior_student': return 0.37;
+    default: return 1.0;
+  }
+};
+
+// Helper function to format price display
+const formatPrice = (basePrice, discountMultiplier) => {
+  if (basePrice === 0) return "Spacer";
+  const finalPrice = (basePrice * discountMultiplier).toFixed(2);
+  return `${finalPrice} zł`;
+};
+
+export default function TripList({ from, to, date, onTripSelect, currentUser }) {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -130,6 +173,11 @@ export default function TripList({ from, to, date, onTripSelect }) {
           // Determine if this is a walking-only trip
           const isWalkOnly = itinerary.legs.every(leg => leg.mode === 'WALK');
 
+          // Calculate dynamic price
+          const basePrice = calculateTripPrice(itinerary);
+          const discountMultiplier = getDiscountMultiplier(currentUser);
+          const displayPrice = formatPrice(basePrice, discountMultiplier);
+
           return {
             id: idx + 1,
             departure: formatTime(itinerary.startTime),
@@ -138,7 +186,8 @@ export default function TripList({ from, to, date, onTripSelect }) {
             durationSeconds: itinerary.duration, // Keep raw duration for sorting
             lines: lines,
             type: isWalkOnly ? 'walk' : type,
-            price: "4.80 zł", // OTP nie zwraca ceny, można dodać później
+            price: displayPrice,
+            basePrice: basePrice, // Store base price for reference
             rawItinerary: itinerary, // Store for route visualization
             isWalkOnly: isWalkOnly,
           };

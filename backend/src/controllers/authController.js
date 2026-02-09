@@ -173,7 +173,7 @@ export async function me(req, res) {
       return res.status(401).json({ message: "Brak autoryzacji" });
     }
 
-    const user = await User.findById(userId).select("id email name role");
+    const user = await User.findById(userId).select("id email name role discountType");
     if (!user) {
       return res.status(404).json({ message: "Użytkownik nie istnieje" });
     }
@@ -245,12 +245,45 @@ export async function googleLogin(req, res) {
       id: user._id,
       email: user.email,
       name: user.name,
-      role: user.role
+      role: user.role,
+      discountType: user.discountType
     });
   } catch (error) {
     console.error("Błąd logowania przez Google:", error);
     return res
       .status(401)
       .json({ message: "Nie udało się zalogować przez Google" });
+  }
+}
+
+// Funkcja do aktualizacji preferencji użytkownika (np. ulgi)
+export async function updatePreferences(req, res) {
+  try {
+    const userId = req.userId;
+    const { discountType } = req.body;
+
+    if (!discountType) {
+      return res.status(400).json({ message: "Brak typu ulgi w żądaniu" });
+    }
+
+    const availableDiscounts = ["normal", "reduced", "senior_student"];
+    if (!availableDiscounts.includes(discountType)) {
+      return res.status(400).json({ message: "Nieprawidłowy typ ulgi" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { discountType },
+      { new: true }
+    ).select("id email name role discountType");
+
+    if (!user) {
+      return res.status(404).json({ message: "Użytkownik nie istnieje" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Błąd aktualizacji preferencji:", error);
+    return res.status(500).json({ message: "Błąd serwera podczas zapisywania preferencji" });
   }
 }
