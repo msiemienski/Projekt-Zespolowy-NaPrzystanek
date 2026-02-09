@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { SearchHistory } from '../models/SearchHistory.js';
 
 const router = express.Router();
 
@@ -138,6 +139,18 @@ router.get('/', async (req, res) => {
     try {
         const addresses = getAddressesCollection();
         
+        console.log('Search request received. Query:', query);
+
+        // Save search query to history (async, don't await to not block response)
+        if (query && query.length >= 2) {
+            console.log('Saving query to history:', query.trim());
+            SearchHistory.create({ query: query.trim() })
+                .then(() => console.log('Query saved successfully'))
+                .catch(err => console.error('Error saving search history:', err));
+        } else {
+            console.log('Query too short or empty, not saving.');
+        }
+
         // Jeśli jest parametr 'q', zwróć pełne wyniki (ulice + adresy) w formacie dla frontendu
         if (req.query.q) {
             const queryLower = query.toLowerCase().trim();

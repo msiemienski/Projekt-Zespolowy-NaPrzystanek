@@ -1,8 +1,26 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldAlert } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function AdminPanelComp({ onClose, showAdminPanel }) {
+  const [topSearches, setTopSearches] = useState([]);
+
+  useEffect(() => {
+    if (showAdminPanel) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+      fetch(`${apiUrl}/api/admin/top-searches`, {
+        credentials: 'include'
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then(data => setTopSearches(data))
+      .catch(err => console.error("Error fetching top searches:", err));
+    }
+  }, [showAdminPanel]);
+
   if (!showAdminPanel) return null;
 
   const handleCloseClick = (e) => {
@@ -54,8 +72,32 @@ export default function AdminPanelComp({ onClose, showAdminPanel }) {
                   Tutaj w przyszłości znajdą się narzędzia do zarządzania użytkownikami, trasami i systemem.
                 </p>
                 
-                <div className="p-4 rounded-xl border border-dashed border-gray-400 w-full">
-                  <span className="text-sm font-mono text-gray-500">TODO: Lista użytkowników, Statystyki, Logi</span>
+                <div className="w-full text-left">
+                  <h4 className="text-md font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Top 5 Wyszukiwań</h4>
+                  <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fraza</th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Liczba wyszukiwań</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        {topSearches.length > 0 ? (
+                          topSearches.map((search, index) => (
+                            <tr key={index}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{search.query}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{search.count}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="2" className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-gray-400">Brak danych</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>

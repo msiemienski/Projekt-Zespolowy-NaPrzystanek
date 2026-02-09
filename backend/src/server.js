@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import geocodeRoutes from "./routes/geocodeRoutes.js";
 import ztmRoutes from "./routes/ztm.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import cron from "node-cron";
 import { updateGTFS } from "./utils/gtfsUpdater.js";
 
@@ -30,6 +31,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/geocode", geocodeRoutes);
 app.use("/api/ztm", ztmRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 app.get("/api/health", (req, res) => {
