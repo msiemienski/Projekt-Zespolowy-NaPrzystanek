@@ -19,7 +19,13 @@ import TripList from "./TripList";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
-export default function Main() {
+export default function Main({
+  startLocation,
+  setStartLocation,
+  endLocation,
+  setEndLocation,
+  setActiveField
+}) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("Gdańsk");
   const [focusedInput, setFocusedInput] = useState(null);
@@ -29,7 +35,7 @@ export default function Main() {
 
   // stan zalogowanego użytkownika
   const [currentUser, setCurrentUser] = useState(null);
-  
+
   // stan wybranej daty
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -119,15 +125,14 @@ export default function Main() {
   }, [showLogin, showSettings]);
 
   const [showResults, setShowResults] = useState(false);
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
+  // internal 'from' and 'to' state removed in favor of props
 
   const handleSearch = () => {
-    if (!from || !to) {
+    if (!startLocation || !endLocation) {
       alert("Wybierz zarówno punkt startowy, jak i docelowy.");
       return;
     }
-    console.log("Szukaj trasy od:", from, "do:", to);
+    console.log("Szukaj trasy od:", startLocation, "do:", endLocation);
     setShowResults(true);
   };
 
@@ -241,7 +246,8 @@ export default function Main() {
         <div className="flex flex-row items-center justify-center gap-2 w-full">
           <div className="relative w-full sm:w-4/5">
             <AddressSearch
-              onSelect={(loc) => setFrom(loc)}
+              selectedLocation={startLocation}
+              onSelect={(loc) => setStartLocation(loc)}
               inputProps={{
                 className: `w-full h-10 font-bold text-base sm:text-base border rounded-xl p-3 sm:p-5 pr-12
                         transition-all duration-300 ease-in-out
@@ -257,6 +263,7 @@ export default function Main() {
                 onFocus: (e) => {
                   e.target.style.borderColor = '#60a5fa';
                   setFocusedInput(1);
+                  setActiveField('start');
                 },
                 onBlur: (e) => {
                   e.target.style.borderColor = 'var(--border-primary)';
@@ -275,7 +282,8 @@ export default function Main() {
         <div className="flex flex-row items-center justify-center gap-2 w-full">
           <div className="relative w-full sm:w-4/5">
             <AddressSearch
-              onSelect={(loc) => setTo(loc)}
+              selectedLocation={endLocation}
+              onSelect={(loc) => setEndLocation(loc)}
               selectedDate={selectedDate}
               inputProps={{
                 className: `w-full h-10 font-bold text-base sm:text-medium border rounded-xl p-3 sm:p-5
@@ -293,6 +301,7 @@ export default function Main() {
                 onFocus: (e) => {
                   e.target.style.borderColor = '#60a5fa';
                   setFocusedInput(2);
+                  setActiveField('end');
                 },
                 onBlur: (e) => {
                   e.target.style.borderColor = 'var(--border-primary)';
@@ -327,7 +336,7 @@ export default function Main() {
 
       {showResults && (
         <div className="flex-1 overflow-hidden w-full relative animate-in slide-in-from-bottom-10 fade-in duration-500">
-          <TripList from={from} to={to} date={selectedDate} />
+          <TripList from={startLocation} to={endLocation} date={selectedDate} />
         </div>
       )}
 

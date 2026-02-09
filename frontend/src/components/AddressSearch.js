@@ -9,6 +9,8 @@ export default function AddressSearch({
   onSelect,
   inputProps = {},
   showLabel = false,
+  /* New prop: selectedLocation */
+  selectedLocation,
 }) {
   const [q, setQ] = useState("");
   const [items, setItems] = useState([]);
@@ -16,6 +18,14 @@ export default function AddressSearch({
   const abortRef = useRef(null);
   const isSelectingRef = useRef(false);
   const justSelectedRef = useRef(false);
+
+  /* Effect to update input when map selects a location */
+  useEffect(() => {
+    if (selectedLocation && selectedLocation.label) {
+      setQ(selectedLocation.label);
+      justSelectedRef.current = true; // Prevent search trigger if needed, though q dependency handles it
+    }
+  }, [selectedLocation]);
 
   useEffect(() => {
     if (justSelectedRef.current) {
