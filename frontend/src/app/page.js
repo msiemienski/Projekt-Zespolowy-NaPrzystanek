@@ -17,8 +17,8 @@ export default function Home() {
   const [startLocation, setStartLocation] = useState(null);
   const [endLocation, setEndLocation] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
-
   const [activeField, setActiveField] = useState(null);
+  const [isResultsVisible, setIsResultsVisible] = useState(false);
 
   const handleMapClick = (location) => {
     console.log("🎯 handleMapClick called with location:", location);
@@ -45,6 +45,7 @@ export default function Home() {
           startLocation={startLocation}
           endLocation={endLocation}
           selectedTrip={selectedTrip}
+          hideMarkers={isResultsVisible || !!selectedTrip}
         />
       </div>
       {/* główna zawartość - left panel */}
@@ -58,6 +59,8 @@ export default function Home() {
             setActiveField={setActiveField}
             selectedTrip={selectedTrip}
             setSelectedTrip={setSelectedTrip}
+            onSearch={() => setIsResultsVisible(true)}
+            onBack={() => setIsResultsVisible(false)}
           />
         </div>
       </div>

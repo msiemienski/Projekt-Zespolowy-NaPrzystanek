@@ -26,7 +26,9 @@ export default function Main({
   setEndLocation,
   setActiveField,
   selectedTrip,
-  setSelectedTrip
+  setSelectedTrip,
+  onSearch,
+  onBack
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("Gdańsk");
@@ -136,10 +138,12 @@ export default function Main({
     }
     console.log("Szukaj trasy od:", startLocation, "do:", endLocation);
     setShowResults(true);
+    if (onSearch) onSearch();
   };
 
   const handleBack = () => {
     setShowResults(false);
+    if (onBack) onBack();
   };
 
   return (

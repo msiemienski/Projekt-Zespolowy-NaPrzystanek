@@ -129,14 +129,20 @@ function MapEvents({ onMapClick }) {
 }
 
 // Helper function to get color for each transit mode
-function getModeColor(mode) {
-  switch (mode) {
-    case 'WALK':
-      return '#9ca3af'; // gray
-    case 'BUS':
-      return '#ef4444'; // red
-    case 'TRAM':
-      return '#3b82f6'; // blue
+function getModeColor(mode, gtfsColor) {
+  if (!mode) return '#6b7280';
+  const normalizedMode = mode.toUpperCase();
+
+  // 1. Strict priority for common modes to ensure consistency
+  if (normalizedMode === 'TRAM') return '#3b82f6'; // blue
+  if (normalizedMode === 'WALK') return '#9ca3af'; // gray
+  if (normalizedMode === 'BUS') return '#ef4444'; // red
+
+  // 2. Use GTFS color if available for other modes (like Rail, Subway)
+  if (gtfsColor) return `#${gtfsColor}`;
+
+  // 3. Fallback for specific modes
+  switch (normalizedMode) {
     case 'RAIL':
     case 'SUBWAY':
       return '#eab308'; // yellow/gold
@@ -145,7 +151,7 @@ function getModeColor(mode) {
   }
 }
 
-export default function Map({ onMapClick, startLocation, endLocation, selectedTrip }) {
+export default function Map({ onMapClick, startLocation, endLocation, selectedTrip, hideMarkers }) {
   const [stops, setStops] = useState([]);
 
   useEffect(() => {
@@ -205,15 +211,16 @@ export default function Map({ onMapClick, startLocation, endLocation, selectedTr
 
         try {
           const coordinates = polyline.decode(leg.legGeometry.points);
-          const color = getModeColor(leg.mode);
+          // Prioritize strict colors for TRAM/BUS/WALK
+          const color = getModeColor(leg.mode, leg.route?.color);
 
           return (
             <Polyline
-              key={`leg-${idx}`}
+              key={`trip-${selectedTrip.id || 'current'}-leg-${idx}`}
               positions={coordinates}
               color={color}
               weight={5}
-              opacity={0.7}
+              opacity={0.8}
             />
           );
         } catch (error) {
@@ -222,31 +229,46 @@ export default function Map({ onMapClick, startLocation, endLocation, selectedTr
         }
       })}
 
-      <MarkerClusterGroup>
-        {stops.map((stop) => {
-          const hasTram = stop.routes.some((r) => r.mode === "TRAM");
-          const hasBus = stop.routes.some((r) => r.mode === "BUS");
-          const hasBoth = hasTram && hasBus;
-          const icon = hasBoth ? TramBusIcon : hasTram ? tramIcon : hasBus ? busIcon : null;
-          if (!icon) return null;
+      {!hideMarkers && (
+        <MarkerClusterGroup>
+          {stops.map((stop) => {
+            const hasTram = stop.routes.some((r) => r.mode === "TRAM");
+            const hasBus = stop.routes.some((r) => r.mode === "BUS");
+            const hasBoth = hasTram && hasBus;
+            const icon = hasBoth ? TramBusIcon : hasTram ? tramIcon : hasBus ? busIcon : null;
+            if (!icon) return null;
 
-          return (
-            <Marker key={stop.gtfsId} position={[stop.lat, stop.lon]} icon={icon}>
-              <Tooltip direction="top" offset={[0, -10]} opacity={0.9}>
-                <strong>{stop.name}</strong>
-              </Tooltip>
-              <Popup>
-                <div>
-                  <h2>{stop.name}</h2>
-                  <p>
-                    <strong>ID:</strong> {stop.gtfsId}
-                  </p>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
-      </MarkerClusterGroup>
+            return (
+              <Marker
+                key={stop.gtfsId}
+                position={[stop.lat, stop.lon]}
+                icon={icon}
+                eventHandlers={{
+                  click: () => {
+                    onMapClick({
+                      label: stop.name,
+                      lat: stop.lat,
+                      lon: stop.lon,
+                    });
+                  },
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -10]} opacity={0.9}>
+                  <strong>{stop.name}</strong>
+                </Tooltip>
+                <Popup>
+                  <div>
+                    <h2>{stop.name}</h2>
+                    <p>
+                      <strong>ID:</strong> {stop.gtfsId}
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
+      )}
     </MapContainer>
   );
 }

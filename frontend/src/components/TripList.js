@@ -88,6 +88,7 @@ export default function TripList({ from, to, date, onTripSelect, currentUser }) 
               route {
                 shortName
                 longName
+                color
               }
               from {
                 name
@@ -204,6 +205,9 @@ export default function TripList({ from, to, date, onTripSelect, currentUser }) 
         });
 
         setTrips(formattedTrips);
+        if (formattedTrips.length > 0) {
+          onTripSelect(formattedTrips[0]);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -293,13 +297,13 @@ export default function TripList({ from, to, date, onTripSelect, currentUser }) 
             <div className="flex flex-row items-center gap-2 mt-2 pt-3 transition-colors duration-500" style={{ borderTopColor: 'var(--border-secondary)', borderTopWidth: '1px' }}>
               {trip.lines.map((line, i) => {
                 const lineName = typeof line === 'string' ? line : line.name;
-                const lineMode = typeof line === 'object' ? line.mode : null;
+                const lineMode = (typeof line === 'object' ? line.mode : null)?.toUpperCase();
 
                 const isSKM = lineName === "SKM";
 
                 let IconComponent = Bus;
-                let bgColor = 'rgba(239, 68, 68, 0.2)';
-                let textColor = '#dc2626';
+                let bgColor = 'rgba(156, 163, 175, 0.2)'; // neutral gray background
+                let textColor = '#6b7280'; // neutral gray text
 
                 if (isSKM || lineMode === "RAIL" || lineMode === "SUBWAY") {
                   IconComponent = Train;
@@ -308,7 +312,15 @@ export default function TripList({ from, to, date, onTripSelect, currentUser }) 
                 } else if (lineMode === "TRAM") {
                   IconComponent = Train;
                   bgColor = 'rgba(59, 130, 246, 0.2)';
-                  textColor = '#2563eb';
+                  textColor = '#3b82f6';
+                } else if (lineMode === "BUS") {
+                  IconComponent = Bus;
+                  bgColor = 'rgba(239, 68, 68, 0.2)';
+                  textColor = '#ef4444';
+                } else if (lineMode === "WALK") {
+                  IconComponent = Clock;
+                  bgColor = 'rgba(156, 163, 175, 0.2)';
+                  textColor = '#9ca3af';
                 }
 
                 return (
