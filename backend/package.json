@@ -5,7 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:report": "vitest run --coverage",
+    "test:report:serve": "vite preview --outDir reports --open /vitest.html --port 4173",
+    "test:report:open": "npm run test:report && start \"\" reports\\coverage\\index.html && npm run test:report:serve"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
@@ -21,6 +27,10 @@
     "node-cron": "^4.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.2",
+    "nodemon": "^3.1.0",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.2"
   }
 }

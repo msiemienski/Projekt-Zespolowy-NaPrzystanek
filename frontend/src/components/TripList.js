@@ -3,7 +3,9 @@ import { ArrowLeft, Bus, Clock, Train } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-// Helper function to calculate trip price based on complexity
+const BASE_TICKET_PRICE = 4.8;
+
+// Helper function to calculate trip price as a sum of transit legs
 const calculateTripPrice = (itinerary) => {
   const legs = itinerary.legs || [];
 
@@ -11,21 +13,11 @@ const calculateTripPrice = (itinerary) => {
   const isWalkOnly = legs.every(leg => leg.mode === 'WALK');
   if (isWalkOnly) return 0;
 
-  // Calculate trip duration in minutes
-  const durationMinutes = itinerary.duration / 60;
-
   // Get number of transit legs (non-walking)
   const transitLegs = legs.filter(leg => leg.mode !== 'WALK');
 
-  // Pricing logic:
-  // - Simple trips (1-2 transit legs, <30 min): 4.80 zł (single ticket)
-  // - Complex trips (3+ legs OR >30 min): 7.20 zł (60-min ticket)
-
-  if (transitLegs.length <= 2 && durationMinutes < 30) {
-    return 4.80; // Bilet jednorazowy
-  } else {
-    return 7.20; // Bilet czasowy 60 min
-  }
+  // 1 transit leg = 1 normal ticket (4.80 zł)
+  return Number((transitLegs.length * BASE_TICKET_PRICE).toFixed(2));
 };
 
 // Helper function to get discount multiplier

@@ -1,42 +1,15 @@
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
-import geocodeRoutes from "./routes/geocodeRoutes.js";
-import ztmRoutes from "./routes/ztm.js";
-import adminRoutes from "./routes/adminRoutes.js";
 import cron from "node-cron";
 import { updateGTFS } from "./utils/gtfsUpdater.js";
+import { createApp } from "./app.js";
 
 dotenv.config();
-
-const app = express();
 
 const port = process.env.PORT || 4000;
 const mongoUri = process.env.MONGO_URI;
 const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
-
-app.use(express.json());
-app.use(cookieParser());
-
-app.use(
-  cors({
-    origin: frontendOrigin,
-    credentials: true
-  })
-);
-
-app.use("/api/auth", authRoutes);
-app.use("/api/geocode", geocodeRoutes);
-app.use("/api/ztm", ztmRoutes);
-app.use("/api/admin", adminRoutes);
-
-
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+const app = createApp({ frontendOrigin });
 
 async function start() {
   if (mongoUri) {

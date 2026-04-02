@@ -6,6 +6,9 @@ const router = express.Router();
 
 // Stałe
 const OTP_BASE_URL = process.env.OTP_BASE_URL || 'http://host.docker.internal:8080';
+const OTP_FETCH_TIMEOUT_MS = Number(process.env.OTP_FETCH_TIMEOUT_MS || 2500);
+const OTP_STOPS_CACHE_TTL_MS = Number(process.env.OTP_STOPS_CACHE_TTL_MS || 15000);
+const otpStopsCache = new Map();
 const GDANSK_BBOX = {
     minLon: 18.35,
     minLat: 54.25,
@@ -20,12 +23,27 @@ function getCollection(name) {
 }
 
 async function fetchOTPStops(query) {
+    const cacheKey = query.trim().toLowerCase();
+    const now = Date.now();
+    const cachedValue = otpStopsCache.get(cacheKey);
+    if (cachedValue && cachedValue.expiresAt > now) {
+        return cachedValue.data;
+    }
+
     try {
         const otpParams = new URLSearchParams({ query, autocomplete: 'true', stops: 'true', clusters: 'true', corners: 'true' });
         const otpUrl = `${OTP_BASE_URL}/otp/geocode?${otpParams.toString()}`;
         console.log(`Fetching OTP stops from: ${otpUrl}`);
 
-        const response = await fetch(otpUrl);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), OTP_FETCH_TIMEOUT_MS);
+        let response;
+        try {
+            response = await fetch(otpUrl, { signal: controller.signal });
+        } finally {
+            clearTimeout(timeoutId);
+        }
+
         if (!response.ok) {
             console.error(`OTP geocode error: ${response.status}`);
             return [];
@@ -34,7 +52,7 @@ async function fetchOTPStops(query) {
         const data = await response.json();
         const results = Array.isArray(data) ? data : [];
 
-        return results.map((result, idx) => {
+        const mappedResults = results.map((result, idx) => {
             const lat = Number(result.lat) || 0;
             const lng = Number(result.lng) || 0;
             const description = result.description || '';
@@ -50,6 +68,13 @@ async function fetchOTPStops(query) {
                 city: null
             };
         });
+
+        otpStopsCache.set(cacheKey, {
+            data: mappedResults,
+            expiresAt: now + OTP_STOPS_CACHE_TTL_MS
+        });
+
+        return mappedResults;
     } catch (err) {
         console.error('OTP Geocoder błąd:', err?.message || err);
         return [];
@@ -100,6 +125,14 @@ function parseQueryParts(query) {
     }
     return { streetQuery: q, houseNumberQuery: null };
 }
+
+export const geocodeTestUtils = {
+    fetchOTPStops,
+    buildGeoFilter,
+    isInGdanskArea,
+    parseQueryParts,
+    clearOtpStopsCache: () => otpStopsCache.clear()
+};
 
 router.get('/', async (req, res) => {
     const query = req.query.q || req.query.prefix || '';

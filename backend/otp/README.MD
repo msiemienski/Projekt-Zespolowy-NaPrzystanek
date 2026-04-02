@@ -46,7 +46,7 @@ Następujące pliki są **wykluczone** z repozytorium (duże pliki binarne) i mu
    - Tworzy się automatycznie po uruchomieniu OTP
    - Umieść w: `backend/otp/ztm/`, wygeneruje się automatycznie po wpisaniu :
 ```bash
-java -Xmx4G -jar otp-shaded-2.8.1.jar --build --serve ztm
+java -Xmx4G -jar otp-shaded-2.8.1.jar --build --save ztm
 ```
 (lub zostaw, jeśli już istnieje)
 
