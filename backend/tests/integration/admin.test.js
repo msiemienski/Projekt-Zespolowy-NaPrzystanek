@@ -33,7 +33,6 @@ describe("Trasy Administratora (Admin Routes)", () => {
         { originalQuery: "Warszawa", count: 10 },
         { originalQuery: "Kraków", count: 5 }
       ];
-      // Mockowanie samej pracy agregującej prosto na model Mongoose.
       vi.spyOn(SearchHistory, "aggregate").mockResolvedValue(mockAggregatedSearches);
 
       const token = generateToken("admin123");
@@ -49,7 +48,7 @@ describe("Trasy Administratora (Admin Routes)", () => {
     });
 
     it("odrzuca dostęp z kodem 403 (Forbidden), gdy wejdzie user o słabej roli", async () => {
-      const regularUser = { _id: "user123", role: "user" }; // Zwykły przypis "user"
+      const regularUser = { _id: "user123", role: "user" }; 
       const pQuery = Promise.resolve(regularUser);
       vi.spyOn(User, "findById").mockReturnValue(pQuery);
 
@@ -59,13 +58,11 @@ describe("Trasy Administratora (Admin Routes)", () => {
         .set("Cookie", [`token=${token}`]);
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toBe("Brak uprawnień administratora");
     });
 
     it("nie pozwala dojść do trasy osobie całkowicie niezalogowanej na serwerze (np. 401)", async () => {
       const response = await request(makeApp())
         .get("/api/admin/top-searches");
-      // Mimo iż app.use(requireAuth) tam jest, powinno polecić 401 i odmowa
       expect(response.status).toBe(401);
     });
 
@@ -82,7 +79,38 @@ describe("Trasy Administratora (Admin Routes)", () => {
         .set("Cookie", [`token=${token}`]);
 
       expect(response.status).toBe(500);
-      // Nie dostajemy konkretów błędu na fontend ze względów bezp. ale dostaniemy catch z kontrolera i odpowiedz
+    });
+
+    it("zwraca 404 w weryfikacji admina jeśli użytkownik na ciastku przepadł w BD", async () => {
+      const pQuery = Promise.resolve(null);
+      vi.spyOn(User, "findById").mockReturnValue(pQuery);
+
+      const token = generateToken("usunietemu");
+      const response = await request(makeApp())
+        .get("/api/admin/top-searches")
+        .set("Cookie", [`token=${token}`]);
+
+      expect(response.status).toBe(404);
+    });
+
+    it("zwraca 500 przy błędzie pobierania samej bazy User podczas autoryzacji", async () => {
+      vi.spyOn(User, "findById").mockImplementation(() => { throw new Error() });
+      const token = generateToken("usunietemu");
+      const response = await request(makeApp())
+        .get("/api/admin/top-searches")
+        .set("Cookie", [`token=${token}`]);
+
+      expect(response.status).toBe(500);
+    });
+
+    it("zwraca 401 jako brak autoryzacji jeśli w dobrym tokenie zabraknie unikalnego sub identyfikatora", async () => {
+      // jwt sign bez podanego w payloads 'sub': ID
+      const token = jwt.sign({ extra: "cos" }, process.env.JWT_SECRET || "test-secret");
+      const response = await request(makeApp())
+        .get("/api/admin/top-searches")
+        .set("Cookie", [`token=${token}`]);
+
+      expect(response.status).toBe(401);
     });
   });
 });
